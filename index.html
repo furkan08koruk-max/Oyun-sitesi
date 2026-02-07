@@ -3,80 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberHub v4.0 | Snake & Pacman</title>
+    <title>Furkan Koruk | CyberHub</title>
     <style>
         :root {
             --neon-blue: #00f3ff;
-            --neon-pink: #ff00ff;
+            --neon-purple: #7a1b99;
             --neon-green: #39ff14;
-            --neon-yellow: #ffff00;
-            --panel-bg: rgba(0, 10, 25, 0.9);
+            --bg-dark: #08090b;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; height: 100vh; }
-        #matrix-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        body { background-color: var(--bg-dark); color: white; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; overflow: hidden; }
 
-        .wrapper { display: flex; align-items: center; justify-content: center; height: 100vh; }
+        /* Matrix Arka Plan */
+        #matrix-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.3; }
+
+        /* Yan Paneller */
+        .side-bar { width: 180px; display: flex; flex-direction: column; padding: 20px 10px; background: #000; z-index: 10; }
+        .side-left { border-right: 2px solid var(--neon-purple); }
+        .side-right { border-left: 2px solid var(--neon-blue); }
+
+        .panel-header { font-size: 10px; color: #444; letter-spacing: 2px; margin-bottom: 20px; font-weight: bold; }
+
+        .cyber-btn {
+            display: block; text-decoration: none; color: #999; background: #1a1b1f; padding: 12px 15px;
+            margin-bottom: 10px; font-size: 11px; letter-spacing: 1px;
+            clip-path: polygon(0 0, 90% 0, 100% 30%, 100% 100%, 0% 100%);
+            border: 1px solid #222; cursor: pointer; transition: 0.2s; text-align: center;
+        }
+        .side-left .cyber-btn:hover { background: #2a1535; color: #fff; border-color: var(--neon-purple); box-shadow: 0 0 10px var(--neon-purple); }
+        .side-right .cyber-btn:hover { background: #0d2a35; color: #fff; border-color: var(--neon-blue); box-shadow: 0 0 10px var(--neon-blue); }
+
+        /* Ana İçerik Alanı */
+        .main-container { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
         
-        .main-panel {
-            background: var(--panel-bg);
-            border: 2px solid var(--neon-blue);
-            backdrop-filter: blur(10px);
-            padding: 40px; border-radius: 20px;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
-            width: 90%; max-width: 800px; text-align: center;
-        }
+        /* Portfolyo Görünümü */
+        #portfolio-view { text-align: center; display: block; }
+        .title { font-size: 4rem; letter-spacing: 10px; text-transform: uppercase; text-shadow: 0 0 30px var(--neon-blue); }
+        .status-text { color: var(--neon-blue); letter-spacing: 6px; font-size: 14px; margin-bottom: 40px; }
+        .description { max-width: 500px; border-left: 3px solid var(--neon-purple); padding-left: 20px; font-size: 14px; color: #ddd; text-align: left; }
 
-        .btn {
-            background: transparent; border: 2px solid var(--neon-blue); color: var(--neon-blue);
-            padding: 12px 25px; cursor: pointer; text-transform: uppercase; transition: 0.3s; margin: 5px;
-            font-weight: bold;
-        }
-        .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
+        /* Oyun Görünümü */
+        #game-view { display: none; flex-direction: column; align-items: center; }
+        canvas { border: 2px solid var(--neon-blue); background: #000; box-shadow: 0 0 20px var(--neon-blue); }
+        .score { font-size: 24px; color: var(--neon-blue); margin-bottom: 10px; text-shadow: 0 0 10px var(--neon-blue); }
 
-        .game-section { display: none; flex-direction: column; align-items: center; }
-        canvas { border: 3px solid var(--neon-blue); background: #000; box-shadow: 0 0 25px var(--neon-blue); }
-        .score-board { color: var(--neon-blue); font-size: 24px; margin-bottom: 10px; text-shadow: 0 0 10px var(--neon-blue); }
     </style>
 </head>
 <body>
 
 <canvas id="matrix-canvas"></canvas>
 
-<div class="wrapper">
-    <div id="ui-panel" class="main-panel">
-        <h1 style="text-shadow: 0 0 15px var(--neon-blue);">CYBER HUB v4.0</h1>
-        <div style="margin: 30px 0;">
-            <button class="btn" onclick="initSnake()">🐍 YILAN OYUNU</button>
-            <button class="btn" onclick="initPacman()">🟡 PACMAN (NEON)</button>
-            <button class="btn" onclick="location.reload()" style="border-color:var(--neon-pink); color:var(--neon-pink);">RESET SYSTEM</button>
+<div class="side-bar side-left">
+    <div class="panel-header">// ENV_GAMES</div>
+    <div class="cyber-btn" onclick="startSnake()">YILAN OYUNU</div>
+    <div class="cyber-btn" onclick="startPacman()">PACMAN</div>
+    <div class="cyber-btn" onclick="showPortfolio()">PORTFOLYO</div>
+    <div class="panel-header" style="margin-top:20px">// DEV_TOOLS</div>
+    <a href="https://github.com" target="_blank" class="cyber-btn">GITHUB</a>
+    <div class="cyber-btn">UNITY</div>
+</div>
+
+<div class="main-container">
+    <div id="portfolio-view">
+        <h1 class="title">FURKAN KORUK</h1>
+        <div class="status-text">STATUS: ACTIVE</div>
+        <div class="description">
+            <b>Neden Yazılım?</b> Çünkü koda dokunduğum an, kuralları benim koyduğum bir evren inşa ediyorum.
         </div>
-        <p style="color: #444; font-size: 12px;">// SELECT MODULE TO EXECUTE</p>
     </div>
 
-    <div id="snake-section" class="game-section">
-        <div class="score-board" id="s-score">DATA COLLECTED: 0</div>
-        <canvas id="snakeGame" width="400" height="400"></canvas>
-        <button class="btn" onclick="location.reload()" style="margin-top:20px;">ABORT MISSION</button>
-    </div>
-
-    <div id="pacman-section" class="game-section">
-        <div class="score-board" id="p-score">CYBER-POINTS: 0</div>
-        <canvas id="pacmanGame" width="400" height="400"></canvas>
-        <button class="btn" onclick="location.reload()" style="margin-top:20px;">TERMINATE</button>
+    <div id="game-view">
+        <div id="game-score" class="score">SCORE: 0</div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div class="cyber-btn" style="margin-top:20px; width: 200px;" onclick="showPortfolio()">SİSTEME DÖN</div>
     </div>
 </div>
 
+<div class="side-bar side-right">
+    <div class="panel-header">// SOCIAL_ENGINE</div>
+    <a href="https://youtube.com" target="_blank" class="cyber-btn">YOUTUBE</a>
+    <a href="#" target="_blank" class="cyber-btn">EPIC GAMES</a>
+    <a href="#" target="_blank" class="cyber-btn">STEAM</a>
+</div>
+
 <script>
-    // 1. MATRIX BACKGROUND
+    // 1. Matrix Arka Plan
     const mC = document.getElementById('matrix-canvas');
     const mX = mC.getContext('2d');
     mC.width = window.innerWidth; mC.height = window.innerHeight;
-    const bin = "1100101"; const drops = Array(Math.floor(mC.width/16)).fill(1);
+    const bin = "01100101"; const drops = Array(Math.floor(mC.width/16)).fill(1);
     function drawM() {
         mX.fillStyle = "rgba(0,0,0,0.1)"; mX.fillRect(0,0,mC.width,mC.height);
-        mX.fillStyle = "#00f3ff"; mX.font = "16px monospace";
+        mX.fillStyle = "#00f3ff"; mX.font = "15px monospace";
         drops.forEach((y, i) => {
             mX.fillText(bin[Math.floor(Math.random()*bin.length)], i*16, y*16);
             if(y*16 > mC.height && Math.random() > 0.975) drops[i] = 0; drops[i]++;
@@ -84,108 +103,85 @@
     }
     setInterval(drawM, 50);
 
-    // 2. SNAKE GAME MODULE
-    function initSnake() {
-        document.getElementById('ui-panel').style.display = 'none';
-        document.getElementById('snake-section').style.display = 'flex';
-        const canvas = document.getElementById("snakeGame");
-        const ctx = canvas.getContext("2d");
+    // 2. Görünüm Kontrolü
+    const portView = document.getElementById('portfolio-view');
+    const gameView = document.getElementById('game-view');
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let gameInterval;
+
+    function showPortfolio() {
+        clearInterval(gameInterval);
+        gameView.style.display = 'none';
+        portView.style.display = 'block';
+    }
+
+    // 3. Yılan Oyunu
+    function startSnake() {
+        portView.style.display = 'none';
+        gameView.style.display = 'flex';
+        clearInterval(gameInterval);
+        
         let box = 20; let snake = [{x:9*box, y:10*box}];
         let food = {x:Math.floor(Math.random()*19+1)*box, y:Math.floor(Math.random()*19+1)*box};
         let d; let score = 0;
 
-        document.addEventListener("keydown", e => {
-            if(e.keyCode == 37 && d != "RIGHT") d = "LEFT";
-            else if(e.keyCode == 38 && d != "DOWN") d = "UP";
-            else if(e.keyCode == 39 && d != "LEFT") d = "RIGHT";
-            else if(e.keyCode == 40 && d != "UP") d = "DOWN";
-        });
+        document.onkeydown = e => {
+            if(e.keyCode==37 && d!="RIGHT") d="LEFT";
+            if(e.keyCode==38 && d!="DOWN") d="UP";
+            if(e.keyCode==39 && d!="LEFT") d="RIGHT";
+            if(e.keyCode==40 && d!="UP") d="DOWN";
+        };
 
-        function drawS() {
+        gameInterval = setInterval(() => {
             ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
             for(let i=0; i<snake.length; i++){
                 ctx.fillStyle = (i==0) ? "#39ff14" : "#008f11";
                 ctx.fillRect(snake[i].x, snake[i].y, box, box);
-                ctx.strokeStyle = "#000"; ctx.strokeRect(snake[i].x, snake[i].y, box, box);
             }
-            ctx.fillStyle = "#ff00ff"; ctx.shadowBlur = 10; ctx.shadowColor = "#ff00ff";
-            ctx.fillRect(food.x, food.y, box, box); ctx.shadowBlur = 0;
-            
+            ctx.fillStyle = "#ff00ff"; ctx.fillRect(food.x, food.y, box, box);
             let sX = snake[0].x; let sY = snake[0].y;
             if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box;
-            
-            if(sX == food.x && sY == food.y){
-                score++; document.getElementById("s-score").innerText = "DATA COLLECTED: "+score;
+            if(sX==food.x && sY==food.y){
+                score++; document.getElementById('game-score').innerText = "SCORE: "+score;
                 food = {x:Math.floor(Math.random()*19+1)*box, y:Math.floor(Math.random()*19+1)*box};
-            } else { snake.pop(); }
-            
+            } else snake.pop();
             let head = {x:sX, y:sY};
             if(sX<0||sX>=400||sY<0||sY>=400||snake.some(t=>t.x==head.x&&t.y==head.y)){
-                clearInterval(sInterval); alert("CONNECTION LOST! DATA: " + score); location.reload();
+                alert("SİSTEM ÇÖKTÜ! SKOR: " + score); showPortfolio();
             }
             snake.unshift(head);
-        }
-        let sInterval = setInterval(drawS, 100);
+        }, 100);
     }
 
-    // 3. PACMAN MODULE (Fütüristik Basit Versiyon)
-    function initPacman() {
-        document.getElementById('ui-panel').style.display = 'none';
-        document.getElementById('pacman-section').style.display = 'flex';
-        const canvas = document.getElementById("pacmanGame");
-        const ctx = canvas.getContext("2d");
-        
-        let pacman = { x: 200, y: 200, r: 15, angle1: 0.2, angle2: 1.8, dir: 0 };
-        let dots = [];
-        for(let i=0; i<10; i++) dots.push({x: Math.random()*380+10, y: Math.random()*380+10});
-        let pScore = 0;
+    // 4. Pacman (Basit)
+    function startPacman() {
+        portView.style.display = 'none';
+        gameView.style.display = 'flex';
+        clearInterval(gameInterval);
+        let px=200, py=200, pd=0, pScore=0;
+        let dots = [{x:100,y:100},{x:300,y:100},{x:100,y:300},{x:300,y:300}];
 
-        document.addEventListener("keydown", e => {
-            if(e.keyCode == 37) pacman.dir = 1; // Sol
-            if(e.keyCode == 38) pacman.dir = 2; // Yukarı
-            if(e.keyCode == 39) pacman.dir = 3; // Sağ
-            if(e.keyCode == 40) pacman.dir = 4; // Aşağı
-        });
+        document.onkeydown = e => {
+            if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2;
+            if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4;
+        };
 
-        function drawP() {
+        gameInterval = setInterval(() => {
             ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-            
-            // Hareket
-            if(pacman.dir == 1) pacman.x -= 3;
-            if(pacman.dir == 2) pacman.y -= 3;
-            if(pacman.dir == 3) pacman.x += 3;
-            if(pacman.dir == 4) pacman.y += 4;
+            if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
+            if(px<0) px=400; if(px>400) px=0; if(py<0) py=400; if(py>400) py=0;
 
-            // Kenar kontrolü
-            if(pacman.x < 0) pacman.x = 400; if(pacman.x > 400) pacman.x = 0;
-            if(pacman.y < 0) pacman.y = 400; if(pacman.y > 400) pacman.y = 0;
-
-            // Dot yeme
-            dots.forEach((dot, index) => {
-                let dist = Math.hypot(pacman.x - dot.x, pacman.y - dot.y);
-                if(dist < 15) {
-                    dots.splice(index, 1);
-                    pScore += 10;
-                    document.getElementById("p-score").innerText = "CYBER-POINTS: " + pScore;
-                    dots.push({x: Math.random()*380+10, y: Math.random()*380+10});
+            dots.forEach((d,i) => {
+                ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x,d.y,5,0,7); ctx.fill();
+                if(Math.hypot(px-d.x, py-d.y)<15){
+                    dots[i]={x:Math.random()*380,y:Math.random()*380};
+                    pScore+=10; document.getElementById('game-score').innerText = "SCORE: "+pScore;
                 }
-                ctx.fillStyle = varColor('--neon-pink');
-                ctx.beginPath(); ctx.arc(dot.x, dot.y, 4, 0, Math.PI*2); ctx.fill();
             });
-
-            // Pacman Çizimi
-            ctx.fillStyle = varColor('--neon-yellow');
-            ctx.beginPath();
-            let startAngle = (0.2 + (pacman.dir * 0.5)) * Math.PI;
-            ctx.moveTo(pacman.x, pacman.y);
-            ctx.arc(pacman.x, pacman.y, pacman.r, 0.2 * Math.PI, 1.8 * Math.PI);
-            ctx.lineTo(pacman.x, pacman.y); ctx.fill();
-        }
-
-        function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name); }
-        setInterval(drawP, 20);
+            ctx.fillStyle="#ffff00"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
+        }, 30);
     }
 </script>
-
 </body>
 </html>
