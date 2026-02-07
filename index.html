@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hepsi Bir Arada Platform</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 50px; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 600px; text-align: center; }
+        .menu-buttons, .sub-menu { display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+        button { padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; font-size: 16px; }
+        
+        /* Ana Renkler */
+        .btn-main { background-color: #007bff; color: white; }
+        .btn-main:hover { background-color: #0056b3; transform: translateY(-2px); }
+        
+        /* Alt Menü Renkleri */
+        .game-item { background-color: #28a745; color: white; }
+        .lesson-item { background-color: #ffc107; color: #333; }
+        
+        .hidden { display: none; }
+        h1 { color: #333; }
+        h2 { color: #666; margin-top: 30px; border-top: 1px solid #eee; pt: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Hoş Geldin!</h1>
+    <p>Lütfen yapmak istediğin aktiviteyi seç:</p>
+    
+    <div class="menu-buttons">
+        <button class="btn-main" onclick="showCategory('oyun')">Oyun 🎮</button>
+        <button class="btn-main" onclick="showCategory('ders')">Ders 📚</button>
+        <button class="btn-main" onclick="showCategory('video')">Video 🎥</button>
+    </div>
+
+    <div id="oyun-menu" class="hidden">
+        <h2>Oyun Seçenekleri</h2>
+        <div class="sub-menu">
+            <button class="game-item">Yılan Oyunu</button>
+            <button class="game-item">Tetris</button>
+            <button class="game-item">Pacman</button>
+        </div>
+    </div>
+
+    <div id="ders-menu" class="hidden">
+        <h2>Ders Seçenekleri</h2>
+        <div class="sub-menu">
+            <button class="lesson-item">Matematik</button>
+            <button class="lesson-item">Edebiyat</button>
+            <button class="lesson-item">Tarih</button>
+            <button class="lesson-item">Din Kültürü</button>
+        </div>
+    </div>
+
+    <div id="video-menu" class="hidden">
+        <h2>Video İçerikleri</h2>
+        <p>Yakında eklenecek...</p>
+    </div>
+</div>
+
+<script>
+    function showCategory(category) {
+        // Önce tüm menüleri gizle
+        document.getElementById('oyun-menu').classList.add('hidden');
+        document.getElementById('ders-menu').classList.add('hidden');
+        document.getElementById('video-menu').classList.add('hidden');
+
+        // Seçilen menüyü göster
+        const activeMenu = document.getElementById(category + '-menu');
+        if (activeMenu) {
+            activeMenu.classList.remove('hidden');
+        }
+    }
+</script>
+
+</body>
+</html>
