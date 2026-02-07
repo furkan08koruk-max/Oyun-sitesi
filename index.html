@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberHub | Snake Edition</title>
+    <title>CyberHub 2077</title>
     <style>
         :root {
             --neon-blue: #00f3ff;
             --neon-pink: #ff00ff;
             --neon-green: #39ff14;
-            --panel-bg: rgba(0, 10, 20, 0.9);
+            --panel-bg: rgba(0, 20, 40, 0.8);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -26,54 +26,57 @@
 
         .wrapper {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
         }
 
+        /* Ana Panel */
         .main-panel {
             background: var(--panel-bg);
             border: 2px solid var(--neon-blue);
             backdrop-filter: blur(10px);
-            padding: 30px;
+            padding: 40px;
             border-radius: 15px;
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
             width: 90%;
-            max-width: 600px;
+            max-width: 800px;
             text-align: center;
         }
 
-        /* Oyun Alanı Stil */
-        #game-container {
-            display: none; /* Başlangıçta gizli */
-            margin-top: 20px;
-            position: relative;
-        }
+        h1 { font-size: 2.5rem; text-shadow: 0 0 15px var(--neon-blue); margin-bottom: 20px; }
 
-        canvas#snakeGame {
-            border: 2px solid var(--neon-green);
-            background: #000;
-            box-shadow: 0 0 20px var(--neon-green);
-        }
-
+        /* Butonlar */
+        .nav-buttons { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
         .btn {
             background: transparent;
             border: 2px solid var(--neon-blue);
             color: var(--neon-blue);
-            padding: 10px 25px;
+            padding: 12px 25px;
             cursor: pointer;
-            font-weight: bold;
             text-transform: uppercase;
-            margin: 5px;
             transition: 0.3s;
         }
+        .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
 
-        .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
-        .active { display: block !important; }
-        .hidden { display: none; }
+        /* Alt Menüler */
+        .sub-container { display: none; gap: 15px; justify-content: center; margin-top: 20px; }
+        .active { display: flex; }
 
-        #score { color: var(--neon-green); font-size: 1.5rem; margin-bottom: 10px; }
+        .item-btn {
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 15px;
+            cursor: pointer;
+            flex: 1;
+            transition: 0.3s;
+        }
+        .item-btn:hover { background: var(--neon-green); color: #000; box-shadow: 0 0 15px var(--neon-green); }
+
+        /* OYUN ALANI */
+        #game-section { display: none; flex-direction: column; align-items: center; }
+        canvas { border: 3px solid var(--neon-green); background: #000; box-shadow: 0 0 20px var(--neon-green); }
+        .score-board { color: var(--neon-green); font-size: 20px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -81,123 +84,95 @@
 <canvas id="matrix-canvas"></canvas>
 
 <div class="wrapper">
-    <div id="menu" class="main-panel">
-        <h1>CYBER HUB</h1>
-        <p style="color: var(--neon-blue); margin-bottom: 20px;">[ SİSTEM ÇALIŞIYOR... ]</p>
+    <div id="ui-panel" class="main-panel">
+        <h1>HOŞ GELDİN</h1>
         
-        <div id="main-nav">
-            <button class="btn" onclick="startSnake()">YILAN OYUNU_BAŞLAT</button>
-            <button class="btn" style="border-color: #fff; color: #fff;">DERS_MODÜLÜ</button>
+        <div class="nav-buttons">
+            <button class="btn" onclick="toggleMenu('games')">OYUN</button>
+            <button class="btn" onclick="toggleMenu('lessons')">DERS</button>
+            <button class="btn">VİDEO</button>
         </div>
 
-        <div id="game-container">
-            <div id="score">SCORE: 0</div>
-            <canvas id="snakeGame" width="400" height="400"></canvas>
-            <br>
-            <button class="btn" onclick="location.reload()" style="margin-top: 15px; border-color: var(--neon-pink); color: var(--neon-pink);">MENÜYE DÖN</button>
+        <div id="games" class="sub-container">
+            <div class="item-btn" onclick="initSnake()">🐍 YILAN OYUNU</div>
+            <div class="item-btn">🧱 TETRİS</div>
+            <div class="item-btn">🟡 PACMAN</div>
         </div>
+
+        <div id="lessons" class="sub-container">
+            <div class="item-btn" style="border-color: var(--neon-pink); color: var(--neon-pink);">MATEMATİK</div>
+            <div class="item-btn" style="border-color: var(--neon-pink); color: var(--neon-pink);">TARİH</div>
+        </div>
+    </div>
+
+    <div id="game-section">
+        <div class="score-board" id="score">SKOR: 0</div>
+        <canvas id="snakeGame" width="400" height="400"></canvas>
+        <button class="btn" onclick="location.reload()" style="margin-top: 20px;">MENÜYE DÖN</button>
     </div>
 </div>
 
 <script>
-    // --- 1. MATRIX ARKA PLAN ---
+    // 1. Matrix Arka Plan
     const mCanvas = document.getElementById('matrix-canvas');
     const mCtx = mCanvas.getContext('2d');
     mCanvas.width = window.innerWidth; mCanvas.height = window.innerHeight;
-    const bin = "01"; const fontSize = 16;
-    const columns = mCanvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
-
-    function drawMatrix() {
-        mCtx.fillStyle = "rgba(0, 0, 0, 0.05)";
-        mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
-        mCtx.fillStyle = "#00f3ff";
-        mCtx.font = fontSize + "px monospace";
+    const bin = "01100101"; const drops = Array(Math.floor(mCanvas.width/16)).fill(1);
+    function drawM() {
+        mCtx.fillStyle = "rgba(0,0,0,0.05)"; mCtx.fillRect(0,0,mCanvas.width,mCanvas.height);
+        mCtx.fillStyle = "#00f3ff"; mCtx.font = "16px monospace";
         drops.forEach((y, i) => {
-            const text = bin[Math.floor(Math.random() * bin.length)];
-            mCtx.fillText(text, i * fontSize, y * fontSize);
-            if (y * fontSize > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
-            drops[i]++;
+            mCtx.fillText(bin[Math.floor(Math.random()*bin.length)], i*16, y*16);
+            if(y*16 > mCanvas.height && Math.random() > 0.975) drops[i] = 0; drops[i]++;
         });
     }
-    setInterval(drawMatrix, 50);
+    setInterval(drawM, 40);
 
-    // --- 2. YILAN OYUNU MANTIĞI ---
-    const canvas = document.getElementById("snakeGame");
-    const ctx = canvas.getContext("2d");
-    const scoreElement = document.getElementById("score");
-
-    let box = 20;
-    let snake = [{x: 9 * box, y: 10 * box}];
-    let food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
-    let score = 0;
-    let d;
-
-    document.addEventListener("keydown", direction);
-    function direction(event) {
-        if(event.keyCode == 37 && d != "RIGHT") d = "LEFT";
-        else if(event.keyCode == 38 && d != "DOWN") d = "UP";
-        else if(event.keyCode == 39 && d != "LEFT") d = "RIGHT";
-        else if(event.keyCode == 40 && d != "UP") d = "DOWN";
+    // 2. Menü Kontrolü
+    function toggleMenu(id) {
+        document.querySelectorAll('.sub-container').forEach(el => el.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
     }
 
-    function collision(head, array) {
-        for(let i = 0; i < array.length; i++) {
-            if(head.x == array[i].x && head.y == array[i].y) return true;
+    // 3. Yılan Oyunu Fonksiyonu
+    function initSnake() {
+        document.getElementById('ui-panel').style.display = 'none';
+        document.getElementById('game-section').style.display = 'flex';
+        
+        const canvas = document.getElementById("snakeGame");
+        const ctx = canvas.getContext("2d");
+        let box = 20; let snake = [{x: 9*box, y: 10*box}];
+        let food = {x: Math.floor(Math.random()*19+1)*box, y: Math.floor(Math.random()*19+1)*box};
+        let d; let score = 0;
+
+        document.addEventListener("keydown", e => {
+            if(e.keyCode == 37 && d != "RIGHT") d = "LEFT";
+            else if(e.keyCode == 38 && d != "DOWN") d = "UP";
+            else if(e.keyCode == 39 && d != "LEFT") d = "RIGHT";
+            else if(e.keyCode == 40 && d != "UP") d = "DOWN";
+        });
+
+        function draw() {
+            ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
+            for(let i=0; i<snake.length; i++){
+                ctx.fillStyle = (i==0) ? "#39ff14" : "#008f11";
+                ctx.fillRect(snake[i].x, snake[i].y, box, box);
+            }
+            ctx.fillStyle = "#ff00ff"; ctx.fillRect(food.x, food.y, box, box);
+            let sX = snake[0].x; let sY = snake[0].y;
+            if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box;
+            if(sX == food.x && sY == food.y){
+                score++; document.getElementById("score").innerHTML = "SKOR: "+score;
+                food = {x: Math.floor(Math.random()*19+1)*box, y: Math.floor(Math.random()*19+1)*box};
+            } else { snake.pop(); }
+            let head = {x: sX, y: sY};
+            if(sX<0||sX>=400||sY<0||sY>=400||snake.some(t=>t.x==head.x&&t.y==head.y)){
+                clearInterval(game); alert("SİSTEM ÇÖKTÜ! SKOR: " + score); location.reload();
+            }
+            snake.unshift(head);
         }
-        return false;
-    }
-
-    function drawSnake() {
-        ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        for(let i = 0; i < snake.length; i++) {
-            ctx.fillStyle = (i == 0) ? "#39ff14" : "#008f11"; // Kafa neon yeşil
-            ctx.strokeStyle = "#000";
-            ctx.fillRect(snake[i].x, snake[i].y, box, box);
-            ctx.strokeRect(snake[i].x, snake[i].y, box, box);
-        }
-
-        ctx.fillStyle = "#ff00ff"; // Yiyecek neon pembe
-        ctx.shadowBlur = 10; ctx.shadowColor = "#ff00ff";
-        ctx.fillRect(food.x, food.y, box, box);
-        ctx.shadowBlur = 0;
-
-        let snakeX = snake[0].x;
-        let snakeY = snake[0].y;
-
-        if( d == "LEFT") snakeX -= box;
-        if( d == "UP") snakeY -= box;
-        if( d == "RIGHT") snakeX += box;
-        if( d == "DOWN") snakeY += box;
-
-        if(snakeX == food.x && snakeY == food.y) {
-            score++;
-            scoreElement.innerHTML = "SCORE: " + score;
-            food = { x: Math.floor(Math.random() * 19 + 1) * box, y: Math.floor(Math.random() * 19 + 1) * box };
-        } else {
-            snake.pop();
-        }
-
-        let newHead = { x: snakeX, y: snakeY };
-
-        if(snakeX < 0 || snakeX >= canvas.width || snakeY < 0 || snakeY >= canvas.height || collision(newHead, snake)) {
-            clearInterval(game);
-            alert("SİSTEM ÇÖKTÜ! Skorun: " + score);
-            location.reload();
-        }
-
-        snake.unshift(newHead);
-    }
-
-    let game;
-    function startSnake() {
-        document.getElementById("main-nav").classList.add("hidden");
-        document.getElementById("game-container").classList.add("active");
-        game = setInterval(drawSnake, 100);
+        let game = setInterval(draw, 100);
     }
 </script>
-
 </body>
 </html>
