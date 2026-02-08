@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | Arcade v15.2-CS</title>
+    <title>Furkan Koruk | Arcade v15.4</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -28,21 +28,16 @@
             padding: 12px 25px; cursor: pointer; text-transform: uppercase; font-weight: bold; margin: 10px; display: inline-block;
         }
         .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
-        
         #game-area, #version-menu { display: none; flex-direction: column; align-items: center; position: relative; }
         canvas { border: 2px solid var(--neon-blue); background: #000; }
-        .score { font-size: 18px; color: var(--neon-blue); margin-bottom: 10px; font-weight: bold; }
-
-        /* AĞLAYAN ÇOCUK KATMANI */
+        
         #cry-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); display: none;
             flex-direction: column; align-items: center; justify-content: center; z-index: 500;
         }
         .cry-emoji { font-size: 100px; animation: sob 0.6s infinite alternate; }
-        @keyframes sob { from { transform: scale(1); opacity: 0.8; } to { transform: scale(1.1); opacity: 1; } }
-
-        .version-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+        @keyframes sob { from { transform: scale(1); } to { transform: scale(1.1); } }
     </style>
 </head>
 <body>
@@ -55,30 +50,25 @@
 
         <div id="menu-content">
             <h1>FURKAN KORUK</h1>
-            <div class="category-btns">
-                <button class="btn" onclick="initSnake()">🐍 YILAN</button>
-                <button class="btn" onclick="initPacman()">🟡 PACMAN</button>
-                <button class="btn" onclick="initTetris()">🧱 TETRIS RGB</button>
-                <button class="btn" onclick="showVersions()" style="border-color:var(--neon-pink);color:var(--neon-pink)">📁 VERSION</button>
-            </div>
+            <button class="btn" onclick="initSnake()">🐍 YILAN</button>
+            <button class="btn" onclick="initPacman()">🟡 PACMAN</button>
+            <button class="btn" onclick="initTetris()">🧱 TETRIS RGB</button>
+            <button class="btn" onclick="showVersions()" style="border-color:var(--neon-pink);color:var(--neon-pink)">📁 VERSION</button>
         </div>
 
         <div id="version-menu">
             <h2 style="color:var(--neon-pink)">CORE STABILITY</h2>
-            <div class="version-list">
-                <div class="btn" onclick="startLoading('1.1')">v1.1</div>
-                <div class="btn" onclick="startLoading('1.2')">v1.2</div>
-                <div class="btn" onclick="startLoading('1.5')">v1.5</div>
-            </div>
+            <div class="btn" onclick="startLoading('1.1')">v1.1</div>
+            <div class="btn" onclick="startLoading('1.2')">v1.2</div>
+            <div class="btn" onclick="startLoading('1.5')">v1.5</div>
         </div>
 
         <div id="game-area">
             <div id="cry-screen">
                 <div class="cry-emoji">😭</div>
-                <h2 style="color:var(--neon-red); margin-top:15px; letter-spacing:5px;">GAME OVER</h2>
-                <p style="color:white; font-size:10px; margin-top:10px;">SYSTEM RESTARTING...</p>
+                <h2 style="color:var(--neon-red); margin-top:15px;">GAME OVER</h2>
             </div>
-            <div id="score-text" class="score">SCORE: 0</div>
+            <div id="score-text" style="color:var(--neon-blue); margin-bottom:10px;">SCORE: 0</div>
             <canvas id="stage"></canvas>
         </div>
     </div>
@@ -103,14 +93,11 @@
     const canvas = document.getElementById('stage');
     const ctx = canvas.getContext('2d');
 
-    // DRAMATİK EKRAN TETİKLEYİCİ
     function triggerGameOver(restartFunc) {
-        clearInterval(loop);
-        cancelAnimationFrame(loop);
-        const cry = document.getElementById('cry-screen');
-        cry.style.display = 'flex';
+        clearInterval(loop); cancelAnimationFrame(loop);
+        document.getElementById('cry-screen').style.display = 'flex';
         setTimeout(() => {
-            cry.style.display = 'none';
+            document.getElementById('cry-screen').style.display = 'none';
             restartFunc();
         }, 2000);
     }
@@ -136,7 +123,7 @@
         resetToMenu();
     }
 
-    // --- YILAN (v15.2) ---
+    // --- YILAN ---
     function initSnake() {
         clearInterval(loop); document.getElementById('menu-content').style.display = 'none';
         document.getElementById('game-area').style.display = 'flex'; document.getElementById('global-exit').style.display = 'block';
@@ -147,9 +134,7 @@
             ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
             let sX = snake[0].x, sY = snake[0].y;
             if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box;
-            if(sX < 0 || sX >= 400 || sY < 0 || sY >= 400 || snake.some(t => t.x == sX && t.y == sY)) {
-                triggerGameOver(initSnake); return;
-            }
+            if(sX < 0 || sX >= 400 || sY < 0 || sY >= 400 || snake.some(t => t.x == sX && t.y == sY)) { triggerGameOver(initSnake); return; }
             if(sX == food.x && sY == food.y) food = {x:Math.floor(Math.random()*19)*box, y:Math.floor(Math.random()*19)*box}; else snake.pop();
             snake.unshift({x:sX, y:sY});
             snake.forEach((p, i) => { ctx.fillStyle = i==0 ? "#39ff14" : "#008f11"; ctx.fillRect(p.x, p.y, box-1, box-1); });
@@ -157,36 +142,50 @@
         }, 100);
     }
 
-    // --- PACMAN (SİMETRİK + TUNNEL v15.2) ---
+    // --- PACMAN (NOKTALAR GERİ GELDİ) ---
     function initPacman() {
         clearInterval(loop); document.getElementById('menu-content').style.display = 'none';
         document.getElementById('game-area').style.display = 'flex';
         canvas.width = 400; canvas.height = 400;
         let px=200, py=200, pd=0, pScore=0;
+        let dots = Array.from({length: 10}, () => ({x:Math.random()*380, y:Math.random()*380}));
         let ghosts = [{x:50, y:50, speed:1.5}];
         document.onkeydown = e => { if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2; if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4; };
         loop = setInterval(() => {
             ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
             if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
             if(px < 0) px = 400; if(px > 400) px = 0; if(py < 0) py = 400; if(py > 400) py = 0;
+            dots.forEach((d,i) => {
+                ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill();
+                if(Math.hypot(px-d.x, py-d.y) < 20) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-text').innerText = "SCORE: " + pScore; }
+            });
             ghosts.forEach(g => {
                 g.x += (px > g.x ? g.speed : -g.speed); g.y += (py > g.y ? g.speed : -g.speed);
                 ctx.fillStyle="red"; ctx.fillRect(g.x-10, g.y-10, 20, 20);
-                if(Math.hypot(px-g.x, py-g.y) < 20) { triggerGameOver(initPacman); }
+                if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman);
             });
             ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
     }
 
-    // --- TETRIS RGB (AKICI v15.2) ---
+    // --- TETRIS (RASTGELE BLOKLAR) ---
     function initTetris() {
         clearInterval(loop); document.getElementById('menu-content').style.display = 'none';
         document.getElementById('game-area').style.display = 'flex';
         canvas.width = 240; canvas.height = 400;
         ctx.setTransform(1,0,0,1,0,0); ctx.scale(20, 20);
         const colors = [null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF'];
+        const shapes = [
+            [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], // I
+            [[0,2,0],[0,2,0],[0,2,2]], // L
+            [[0,3,0],[0,3,0],[3,3,0]], // J
+            [[4,4],[4,4]], // O
+            [[0,5,0],[5,5,5],[0,0,0]], // T
+            [[0,6,6],[6,6,0],[0,0,0]], // S
+            [[7,7,0],[0,7,7],[0,0,0]]  // Z
+        ];
         const arena = Array.from({length: 20}, () => Array(12).fill(0));
-        let player = { pos: {x: 4, y: 0}, matrix: [[0,1,0],[1,1,1],[0,0,0]] };
+        let player = { pos: {x: 4, y: 0}, matrix: shapes[Math.floor(Math.random()*shapes.length)] };
         function collide() {
             const [m, o] = [player.matrix, player.pos];
             for(let y=0; y<m.length; y++) for(let x=0; x<m[y].length; x++)
@@ -198,8 +197,9 @@
             if (collide()) {
                 player.pos.y--; 
                 player.matrix.forEach((r,y)=>r.forEach((v,x)=>{ if(v!==0) arena[y+player.pos.y][x+player.pos.x]=v; }));
+                player.matrix = shapes[Math.floor(Math.random()*shapes.length)];
                 player.pos.y = 0; player.pos.x = 4;
-                if (collide()) { triggerGameOver(initTetris); }
+                if (collide()) triggerGameOver(initTetris);
             }
         }
         function update(time=0) {
@@ -209,7 +209,7 @@
             loop = requestAnimationFrame(update);
         }
         setInterval(playerDrop, 800);
-        document.onkeydown = e => { if(e.keyCode==37) player.pos.x--; if(e.keyCode==39) player.pos.x++; if(e.keyCode==40) playerDrop(); };
+        document.onkeydown = e => { if(e.keyCode==37) { player.pos.x--; if(collide()) player.pos.x++; } if(e.keyCode==39) { player.pos.x++; if(collide()) player.pos.x--; } if(e.keyCode==40) playerDrop(); };
         update();
     }
 </script>
