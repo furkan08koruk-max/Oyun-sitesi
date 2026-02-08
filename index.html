@@ -3,27 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | Arcade v16.7</title>
+    <title>Furkan Koruk | Arcade v17.0</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
             --neon-red: #ff0033; --panel-bg: rgba(0, 10, 25, 0.95);
+            --matrix-char-color: #00e676; /* Yeni Matrix karakter rengi */
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh; }
+        
+        /* Matrix Canvas'ı tüm ekranı kaplasın */
         #matrix-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; transition: opacity 0.5s; }
         
         .wrapper { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; }
         
+        /* Ana konteynerin kendisi matrix desenli arka plana sahip olacak */
         .main-container {
             display: flex; gap: 20px; width: 95%; max-width: 1100px; height: 650px;
+            position: relative; /* İçindeki elemanlar için konumlandırma */
+            overflow: hidden; /* Taşmaları gizle */
+            border-radius: 20px; /* Köşeleri yuvarlak kalsın */
+        }
+
+        /* Matrix Overlay - bu div main-container'ın arka planını oluşturacak */
+        .matrix-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; /* Panellerin arkasında kalmalı */
+            opacity: 0.1; /* Daha hafif bir efekt için */
+            filter: blur(1px); /* Biraz bulanıklık */
+        }
+
+        /* Panellerin kendi arka planları, matrix'in üzerine gelecek */
+        .main-panel, .side-panel {
+            background: var(--panel-bg); /* Yarı şeffaf koyu arka plan */
+            border: 2px solid var(--neon-blue);
+            padding: 30px; border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            position: relative; z-index: 1; /* Matrix overlay'in üstünde olmalı */
+            overflow: hidden; /* İçerik taşmasını önler */
         }
 
         /* SOL TARAF - OYUN VE BİLGİ */
         .main-panel {
-            flex: 3; background: var(--panel-bg); border: 2px solid var(--neon-blue);
-            padding: 30px; border-radius: 20px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
-            position: relative; overflow: hidden;
+            flex: 3;
         }
 
         /* SAĞ TARAF - ANİMASYONLU YAN PANEL */
@@ -37,6 +60,7 @@
             transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Yaylanma efekti */
             overflow: hidden;
             cursor: pointer;
+            box-shadow: none; /* Kendi özel gölgesi olacak */
         }
 
         .side-panel:hover {
@@ -99,6 +123,7 @@
 
 <div class="wrapper">
     <div id="main-layout" class="main-container">
+        <canvas id="main-matrix-overlay" class="matrix-overlay"></canvas>
         
         <div id="main-content" class="main-panel">
             <button id="global-exit" class="exit-btn" onclick="resetToMenu()">✖ ÇIKIŞ</button>
@@ -114,7 +139,8 @@
                 <div id="info-box">
                     <div class="info-header">> ARCADE_DASHBOARD.LOG</div>
                     <div class="info-item">◈ <b>SNAKE:</b> Robotik mavi mod.</div>
-                    <div class="info-item">◈ <b>PACMAN:</b> Portal geçişi aktif.</div>
+                    <div class="info-item">◈ <b>PACMAN:</b> Portal geçişi aktif. 100 puanda <b>Sniper Robot</b> gelir!</div>
+                    <div class="info-item">◈ <b>TETRIS:</b> Kararlı motor, hatasız oyun.</div>
                     <div class="info-item">◈ <b>SETTINGS:</b> Sağdaki paneli genişletin.</div>
                 </div>
             </div>
@@ -147,43 +173,100 @@
 </div>
 
 <script>
-    // MATRIX
-    const mC = document.getElementById('matrix-canvas'); const mX = mC.getContext('2d');
-    mC.width = window.innerWidth; mC.height = window.innerHeight;
-    const drops = Array(Math.floor(mC.width/16)).fill(1);
-    function drawM() { mX.fillStyle = "rgba(0,0,0,0.1)"; mX.fillRect(0,0,mC.width,mC.height); mX.fillStyle = "#00f3ff"; mX.font = "15px monospace"; drops.forEach((y, i) => { mX.fillText(Math.random() > 0.5 ? "1" : "0", i*16, y*16); if(y*16 > mC.height && Math.random() > 0.975) drops[i] = 0; drops[i]++; }); }
+    // Global Matrix Canvas (arka plan)
+    const mC = document.getElementById('matrix-canvas');
+    const mX = mC.getContext('2d');
+    mC.width = window.innerWidth;
+    mC.height = window.innerHeight;
+    const drops = Array(Math.floor(mC.width/16)).fill(1); // Matrix sütunları
+    function drawM() {
+        mX.fillStyle = "rgba(0,0,0,0.1)"; // Hafif karartma
+        mX.fillRect(0,0,mC.width,mC.height);
+        mX.fillStyle = "var(--matrix-char-color)"; // Global matrix karakter rengi
+        mX.font = "15px monospace";
+        drops.forEach((y, i) => {
+            mX.fillText(Math.random() > 0.5 ? "1" : "0", i*16, y*16);
+            if(y*16 > mC.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        });
+    }
     setInterval(drawM, 50);
 
-    let activeLoop = null; let gameInterval = null;
-    const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d');
+    // Main Container içindeki Matrix Overlay
+    const mainMatrixCanvas = document.getElementById('main-matrix-overlay');
+    const mainMatrixCtx = mainMatrixCanvas.getContext('2d');
+    let mainMatrixDrops;
+
+    function resizeMainMatrix() {
+        mainMatrixCanvas.width = mainMatrixCanvas.offsetWidth;
+        mainMatrixCanvas.height = mainMatrixCanvas.offsetHeight;
+        mainMatrixDrops = Array(Math.floor(mainMatrixCanvas.width/16)).fill(1);
+    }
+    
+    // main-container yüklendiğinde boyutunu alıp matrix'i başlat
+    document.addEventListener('DOMContentLoaded', () => {
+        const mainContainer = document.getElementById('main-layout');
+        // observer, mainContainer'ın boyutları değiştiğinde resizeMainMatrix'i çağırır
+        new ResizeObserver(resizeMainMatrix).observe(mainContainer);
+        resizeMainMatrix(); // İlk yüklemede de boyutlandır
+    });
+
+    function drawMainMatrix() {
+        mainMatrixCtx.clearRect(0, 0, mainMatrixCanvas.width, mainMatrixCanvas.height);
+        mainMatrixCtx.fillStyle = "var(--matrix-char-color)";
+        mainMatrixCtx.font = "15px monospace";
+        if (mainMatrixDrops) { // mainMatrixDrops tanımlı olduğundan emin ol
+            mainMatrixDrops.forEach((y, i) => {
+                mainMatrixCtx.fillText(Math.random() > 0.5 ? "1" : "0", i * 16, y * 16);
+                if (y * 16 > mainMatrixCanvas.height && Math.random() > 0.975) {
+                    mainMatrixDrops[i] = 0;
+                }
+                mainMatrixDrops[i]++;
+            });
+        }
+        requestAnimationFrame(drawMainMatrix);
+    }
+    drawMainMatrix(); // Animasyonu başlat
+
+
+    let activeLoop = null; 
+    let gameInterval = null;
+    const canvas = document.getElementById('stage'); 
+    const ctx = canvas.getContext('2d');
 
     function resetToMenu() {
-        if(activeLoop) cancelAnimationFrame(activeLoop); if(gameInterval) clearInterval(gameInterval);
-        activeLoop = null; gameInterval = null;
+        if(activeLoop) cancelAnimationFrame(activeLoop); 
+        if(gameInterval) clearInterval(gameInterval);
+        activeLoop = null; 
+        gameInterval = null;
         document.getElementById('menu-ui').style.display = 'block';
         document.getElementById('game-area').style.display = 'none';
         document.getElementById('right-panel').style.display = 'flex';
         document.getElementById('global-exit').style.display = 'none';
         document.onkeydown = null;
+        document.getElementById('score-display').innerText = "SCORE: 0"; // Skoru sıfırla
     }
 
     function applyVersion(ver) {
         const s = document.getElementById('ver-status'); s.innerText = "UPDATING...";
         setTimeout(() => {
-            if(ver === '1.1') mC.style.opacity = "0"; 
-            if(ver === '1.2') mC.style.opacity = "0.4"; 
-            if(ver === '1.5') mC.style.opacity = "1";
+            if(ver === '1.1') { mC.style.opacity = "0"; mainMatrixCanvas.style.opacity = "0"; }
+            if(ver === '1.2') { mC.style.opacity = "0.4"; mainMatrixCanvas.style.opacity = "0.1"; }
+            if(ver === '1.5') { mC.style.opacity = "1"; mainMatrixCanvas.style.opacity = "0.2"; } // Daha belirgin
             s.innerText = "v" + ver + " ACTIVE";
         }, 800);
     }
 
     function triggerGameOver(restart) {
-        if(activeLoop) cancelAnimationFrame(activeLoop); if(gameInterval) clearInterval(gameInterval);
+        if(activeLoop) cancelAnimationFrame(activeLoop); 
+        if(gameInterval) clearInterval(gameInterval);
         document.getElementById('cry-screen').style.display = 'flex';
         setTimeout(() => { document.getElementById('cry-screen').style.display = 'none'; restart(); }, 2000);
     }
 
-    // OYUNLAR (SADECE GÖRÜNÜM KONTROLLERİ GÜNCELLENDİ)
+    // OYUNLAR 
     function initSnake() {
         resetToMenu(); document.getElementById('menu-ui').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
         canvas.width=400; canvas.height=400; let sS=0, box=20, d="RIGHT", snake=[{x:9*box, y:10*box}], food={x:40, y:40};
@@ -191,17 +274,81 @@
         gameInterval=setInterval(()=>{ ctx.fillStyle="#000b1a"; ctx.fillRect(0,0,400,400); let sX=snake[0].x, sY=snake[0].y; if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box; if(sX<0||sX>=400||sY<0||sY>=400||snake.some(t=>t.x==sX&&t.y==sY)){triggerGameOver(initSnake);return;} if(sX==food.x&&sY==food.y){food={x:Math.floor(Math.random()*19)*box, y:Math.floor(Math.random()*19)*box}; sS++; document.getElementById('score-display').innerText="SCORE: "+sS;}else{snake.pop();} snake.unshift({x:sX, y:sY}); snake.forEach((p,i)=>{ctx.fillStyle=i==0?"#00f3ff":"#005a66"; ctx.fillRect(p.x+2,p.y+2,box-4,box-4);}); ctx.fillStyle="#ff00ff"; ctx.fillRect(food.x+5,food.y+5,10,10); },100);
     }
 
+    // PACMAN (PORTAL + SNIPER ROBOT)
     function initPacman() {
         resetToMenu(); document.getElementById('menu-ui').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
         canvas.width = 400; canvas.height = 400;
-        let pScore=0, px=200, py=200, pd=0; let dots = Array.from({length: 10}, () => ({x:Math.random()*380, y:Math.random()*380})); let ghosts = [{x:50, y:50, speed:1.5}];
+        let pScore=0, px=200, py=200, pd=0, lastShotTime=0; // lastShotTime eklendi
+        let dots = Array.from({length: 10}, () => ({x:Math.random()*380, y:Math.random()*380}));
+        // Hayaletler: chaser (takipçi), sniper (ateş eden)
+        let ghosts = [{x:50, y:50, speed:1.5, type:'chaser'}];
+        let bullets = []; // Mermiler için dizi
+
         document.onkeydown = e => { if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2; if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4; };
+        
         gameInterval = setInterval(() => {
-            ctx.fillStyle="black"; ctx.fillRect(0,0,400,400); if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
-            if(px < 0) px = 400; if(px > 400) px = 0; if(py < 0) py = 400; if(py > 400) py = 0;
-            dots.forEach((d,i) => { ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill(); if(Math.hypot(px-d.x, py-d.y) < 20) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-display').innerText = "SCORE: " + pScore; } });
-            ghosts.forEach(g => { g.x += (px > g.x ? g.speed : -g.speed); g.y += (py > g.y ? g.speed : -g.speed); ctx.fillStyle="red"; ctx.fillRect(g.x-10, g.y-10, 20, 20); if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman); });
-            ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
+            ctx.fillStyle="black"; ctx.fillRect(0,0,400,400); 
+            if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
+            
+            // Portal geçişleri
+            if(px < 0) px = 400; if(px > 400) px = 0; 
+            if(py < 0) py = 400; if(py > 400) py = 0;
+
+            // Noktaları çiz ve çarpışma kontrolü
+            dots.forEach((d,i) => { 
+                ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill(); 
+                if(Math.hypot(px-d.x, py-d.y) < 20) { 
+                    dots[i] = {x:Math.random()*380, y:Math.random()*380}; 
+                    pScore += 10; 
+                    document.getElementById('score-display').innerText = "SCORE: " + pScore;
+                    // 100 puanı geçince sniper robotu ekle
+                    if (pScore >= 100 && !ghosts.some(g => g.type === 'sniper')) {
+                        ghosts.push({x:350, y:350, speed:2, type:'sniper'});
+                    }
+                } 
+            });
+
+            // Hayaletleri güncelle ve çiz
+            ghosts.forEach(g => { 
+                g.x += (px > g.x ? g.speed : -g.speed); 
+                g.y += (py > g.y ? g.speed : -g.speed); 
+                
+                ctx.fillStyle= (g.type === 'sniper') ? "yellow" : "red"; // Sniper'a farklı renk
+                ctx.fillRect(g.x-10, g.y-10, 20, 20);
+
+                // Sniper robot ateş etme mekaniği
+                if (g.type === 'sniper' && Date.now() - lastShotTime > 1500) { // Her 1.5 saniyede bir
+                    let angle = Math.atan2(py - g.y, px - g.x);
+                    bullets.push({x:g.x, y:g.y, vx: Math.cos(angle)*7, vy: Math.sin(angle)*7}); // Daha hızlı mermi
+                    lastShotTime = Date.now();
+                }
+
+                // Pacman ile hayalet çarpışması
+                if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman);
+            });
+
+            // Mermileri güncelle ve çiz
+            bullets.forEach((b, index) => {
+                b.x += b.vx;
+                b.y += b.vy;
+                ctx.fillStyle="white";
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Mermi ekran dışına çıkarsa veya Pacman'e çarparsa
+                if (b.x < 0 || b.x > 400 || b.y < 0 || b.y > 400 || Math.hypot(px - b.x, py - b.y) < 15) {
+                    if (Math.hypot(px - b.x, py - b.y) < 15) {
+                        triggerGameOver(initPacman); // Mermi Pacman'e çarptı
+                    }
+                    bullets.splice(index, 1); // Mermiyi diziden kaldır
+                }
+            });
+
+            // Pacman'i çiz
+            ctx.fillStyle="yellow"; 
+            ctx.beginPath(); 
+            ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
     }
 
