@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberHub Arcade v10.0 | Wave & Effects</title>
+    <title>CyberHub Arcade v11.0 | Final FX</title>
     <style>
         :root {
             --neon-blue: #00f3ff;
@@ -36,7 +36,7 @@
             background: transparent; cursor: pointer; transition: 0.3s;
             display: none; z-index: 100;
         }
-        .exit-btn:hover { background: var(--neon-pink); color: #000; box-shadow: 0 0 15px var(--neon-pink); }
+        .exit-btn:hover { background: var(--neon-pink); color: #000; }
 
         h1 { font-size: 2.2rem; text-shadow: 0 0 15px var(--neon-blue); margin-bottom: 20px; letter-spacing: 5px; }
 
@@ -61,11 +61,11 @@
         <button id="global-exit" class="exit-btn" onclick="resetToMenu()">✖ ANA MENÜ</button>
 
         <div id="menu-content">
-            <h1>SYSTEM_ARCADE_V10</h1>
+            <h1>SYSTEM_ARCADE_V11</h1>
             <div class="category-btns">
-                <button class="btn" onclick="initSnake()">🐍 YILAN (FX)</button>
-                <button class="btn" onclick="initPacman()">🟡 PACMAN (WAVES)</button>
-                <button class="btn" onclick="initTetris()">🧱 TETRIS (SLOW)</button>
+                <button class="btn" onclick="initSnake()">🐍 YILAN</button>
+                <button class="btn" onclick="initPacman()">🟡 PACMAN (BOOM)</button>
+                <button class="btn" onclick="initTetris()">🧱 TETRIS (CLEAN)</button>
             </div>
         </div>
 
@@ -101,7 +101,8 @@
         document.getElementById('menu-content').style.display = 'block';
         document.getElementById('game-area').style.display = 'none';
         document.getElementById('global-exit').style.display = 'none';
-        ctx.globalAlpha = 1.0;
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Ekranı temizle
     }
 
     function prepareGame(title) {
@@ -111,16 +112,15 @@
         document.getElementById('global-exit').style.display = 'block';
         document.getElementById('score-text').innerText = title;
         ctx.setTransform(1,0,0,1,0,0);
-        ctx.globalAlpha = 1.0;
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Önceki oyundan kalanları sil
     }
 
-    // --- 1. YILAN (FADE-OUT EFEKTLİ) ---
+    // --- 1. YILAN (Aynı Kaldı) ---
     function initSnake() {
-        prepareGame("SNAKE_FX_ACTIVE");
+        prepareGame("SNAKE_CORE_LOADED");
         let box = 20, score = 0, d = "RIGHT", isDead = false, opacity = 1.0;
         let snake = [{x: 9*box, y: 10*box}, {x: 8*box, y: 10*box}];
         let food = {x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box};
-
         document.onkeydown = e => {
             if(isDead) return;
             if(e.keyCode==37 && d!="RIGHT") d="LEFT";
@@ -128,133 +128,82 @@
             if(e.keyCode==39 && d!="LEFT") d="RIGHT";
             if(e.keyCode==40 && d!="UP") d="DOWN";
         };
-
         loop = setInterval(() => {
             ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-            
             if(!isDead) {
                 let sX = snake[0].x, sY = snake[0].y;
                 if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box;
-
-                if(sX < 0 || sX >= 400 || sY < 0 || sY >= 400 || snake.some(t => t.x == sX && t.y == sY)) {
-                    isDead = true;
-                } else {
-                    if(sX == food.x && sY == food.y){
-                        score++; document.getElementById('score-text').innerText = "SCORE: "+score;
-                        food = {x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box};
-                    } else snake.pop();
+                if(sX < 0 || sX >= 400 || sY < 0 || sY >= 400 || snake.some(t => t.x == sX && t.y == sY)) isDead = true;
+                else {
+                    if(sX == food.x && sY == food.y){ score++; food = {x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box}; }
+                    else snake.pop();
                     snake.unshift({x: sX, y: sY});
                 }
-            } else {
-                opacity -= 0.05; // Yavaşça yok olma
-                if(opacity <= 0) {
-                    clearInterval(loop);
-                    document.getElementById('score-text').innerText = "SİSTEM ÇÖKTÜ! SKOR: " + score;
-                    setTimeout(initSnake, 2000);
-                    return;
-                }
-            }
-
+            } else { opacity -= 0.05; if(opacity <= 0) { clearInterval(loop); initSnake(); return; } }
             ctx.globalAlpha = opacity;
-            snake.forEach((p, i) => {
-                ctx.fillStyle = (i==0) ? "#39ff14" : "#008f11";
-                ctx.fillRect(p.x, p.y, box-1, box-1);
-            });
+            snake.forEach((p, i) => { ctx.fillStyle = (i==0) ? "#39ff14" : "#008f11"; ctx.fillRect(p.x, p.y, box-1, box-1); });
             ctx.fillStyle = "#ff00ff"; ctx.fillRect(food.x, food.y, box-1, box-1);
             ctx.globalAlpha = 1.0;
         }, 100);
     }
 
-    // --- 2. PACMAN (DALGA SİSTEMLİ) ---
+    // --- 2. PACMAN (BOOM EFEKTİ & WAVE) ---
     function initPacman() {
-        prepareGame("WAVE 1: INITIALIZING...");
-        let px=200, py=200, pd=0, pScore=0, wave=1;
+        prepareGame("PACMAN_WAVE_SYSTEM");
+        let px=200, py=200, pd=0, pScore=0, wave=1, isExploding = false, boomRadius = 0;
         let ghosts = [{ x: 50, y: 50, speed: 1.5 }];
         let dots = Array.from({length: 8}, () => ({x:Math.random()*380, y:Math.random()*380}));
 
-        document.onkeydown = e => {
-            if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2;
-            if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4;
-        };
+        document.onkeydown = e => { if(!isExploding) { if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2; if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4; } };
 
         loop = setInterval(() => {
             ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-            
+            if(isExploding) {
+                boomRadius += 10;
+                ctx.strokeStyle = "yellow"; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.arc(px, py, boomRadius, 0, Math.PI*2); ctx.stroke();
+                ctx.strokeStyle = "orange";
+                ctx.beginPath(); ctx.arc(px, py, boomRadius*0.7, 0, Math.PI*2); ctx.stroke();
+                if(boomRadius > 100) initPacman();
+                return;
+            }
             if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
             if(px<0) px=400; if(px>400) px=0; if(py<0) py=400; if(py>400) py=0;
-
-            // Wave Check
-            if(pScore >= wave * 100) {
-                wave++;
-                ghosts.push({ x: Math.random()*400, y: Math.random()*400, speed: 1.5 + (wave*0.2) });
-                document.getElementById('score-text').innerText = "WAVE " + wave + " STARTED!";
-            }
-
-            // Ghost AI & Collision
+            if(pScore >= wave * 100) { wave++; ghosts.push({ x: Math.random()*400, y: Math.random()*400, speed: 1.5 + (wave*0.1) }); }
             ghosts.forEach(g => {
                 if (g.x < px) g.x += g.speed; else g.x -= g.speed;
                 if (g.y < py) g.y += g.speed; else g.y -= g.speed;
                 ctx.fillStyle = "red"; ctx.fillRect(g.x-10, g.y-10, 20, 20);
-                if(Math.hypot(px-g.x, py-g.y) < 20) { 
-                    alert("ROBOTLAR ELE GEÇİRDİ! DALGA: " + wave); 
-                    initPacman(); 
-                }
+                if(Math.hypot(px-g.x, py-g.y) < 20) isExploding = true;
             });
-
             dots.forEach((d,i) => {
                 ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x,d.y,5,0,7); ctx.fill();
-                if(Math.hypot(px-d.x, py-d.y)<20){
-                    dots[i]={x:Math.random()*380,y:Math.random()*380};
-                    pScore+=10; document.getElementById('score-text').innerText = "WAVE: "+wave+" | SCORE: "+pScore;
-                }
+                if(Math.hypot(px-d.x, py-d.y)<20){ dots[i]={x:Math.random()*380,y:Math.random()*380}; pScore+=10; document.getElementById('score-text').innerText = "WAVE: "+wave+" | SCORE: "+pScore; }
             });
             ctx.fillStyle="#ffff00"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
     }
 
-    // --- 3. TETRIS (YAVAŞLATILMIŞ) ---
+    // --- 3. TETRIS (TAM TEMİZLİK) ---
     function initTetris() {
-        prepareGame("TETRIS_SLOW_MODE");
+        prepareGame("TETRIS_SYSTEM_CLEAN");
         ctx.scale(20, 20);
         const COLS = 12, ROWS = 20;
         let arena = Array.from({length: ROWS}, () => Array(COLS).fill(0));
         let player = { pos: {x: 4, y: 0}, matrix: [[1,1,1,1]] };
-
         function playerDrop() {
             player.pos.y++;
-            if (collide(arena, player)) {
-                player.pos.y--;
-                merge(arena, player);
-                player.matrix = [[0,2,0],[2,2,2],[0,0,0]][Math.floor(Math.random()*2)] || [[3,3],[3,3]];
-                player.pos.y = 0;
-                player.pos.x = 4;
-            }
+            if (collide(arena, player)) { player.pos.y--; merge(arena, player); player.matrix = [[2,2],[2,2]]; player.pos.y = 0; player.pos.x = 4; }
         }
-
-        function collide(a, p) {
-            const [m, o] = [p.matrix, p.pos];
-            for(let y=0; y<m.length; y++) 
-                for(let x=0; x<m[y].length; x++) 
-                    if(m[y][x]!==0 && (a[y+o.y] && a[y+o.y][x+o.x])!==0) return true;
-            return false;
-        }
-
-        function merge(a, p) {
-            p.matrix.forEach((row, y) => row.forEach((v, x) => { if(v!==0) a[y+p.pos.y][x+p.pos.x]=v; }));
-        }
-
-        document.onkeydown = e => {
-            if(e.keyCode==37) player.pos.x--;
-            if(e.keyCode==39) player.pos.x++;
-            if(e.keyCode==40) playerDrop();
-        };
-
+        function collide(a, p) { const [m, o] = [p.matrix, p.pos]; for(let y=0; y<m.length; y++) for(let x=0; x<m[y].length; x++) if(m[y][x]!==0 && (a[y+o.y] && a[y+o.y][x+o.x])!==0) return true; return false; }
+        function merge(a, p) { p.matrix.forEach((row, y) => row.forEach((v, x) => { if(v!==0) a[y+p.pos.y][x+p.pos.x]=v; })); }
+        document.onkeydown = e => { if(e.keyCode==37) player.pos.x--; if(e.keyCode==39) player.pos.x++; if(e.keyCode==40) playerDrop(); };
         loop = setInterval(() => {
             playerDrop();
             ctx.fillStyle = '#000'; ctx.fillRect(0,0,COLS,ROWS);
             arena.forEach((row,y)=>row.forEach((v,x)=>{ if(v){ctx.fillStyle='#39ff14';ctx.fillRect(x,y,1,1);}}));
             player.matrix.forEach((row,y)=>row.forEach((v,x)=>{ if(v){ctx.fillStyle='#00f3ff';ctx.fillRect(x+player.pos.x,y+player.pos.y,1,1);}}));
-        }, 600); // 400ms'den 600ms'ye çıkarıldı (Yavaşlatıldı)
+        }, 600);
     }
 </script>
 </body>
