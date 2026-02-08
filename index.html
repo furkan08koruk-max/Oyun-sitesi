@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | Arcade v15.4</title>
+    <title>Furkan Koruk | Arcade v15.5 Final</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -11,26 +11,27 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #000; color: #fff; font-family: 'Courier New', monospace; overflow: hidden; height: 100vh; }
-        #matrix-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; transition: opacity 1s; }
+        #matrix-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; }
         .wrapper { display: flex; align-items: center; justify-content: center; height: 100vh; }
         .main-panel {
             background: var(--panel-bg); border: 2px solid var(--neon-blue);
             padding: 40px; border-radius: 20px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
-            width: 90%; max-width: 800px; text-align: center; position: relative;
+            width: 90%; max-width: 800px; text-align: center; position: relative; min-height: 500px;
         }
         .exit-btn {
             position: absolute; top: 15px; right: 15px; padding: 8px 15px; font-size: 10px;
-            border: 1px solid var(--neon-pink); color: var(--neon-pink); background: transparent; cursor: pointer; display: none; z-index: 100;
+            border: 1px solid var(--neon-pink); color: var(--neon-pink); background: transparent; 
+            cursor: pointer; z-index: 1000; display: none;
         }
+        .exit-btn:hover { background: var(--neon-pink); color: #000; }
         h1 { font-size: 3rem; text-shadow: 0 0 20px var(--neon-blue); margin-bottom: 20px; letter-spacing: 10px; }
         .btn {
             background: transparent; border: 2px solid var(--neon-blue); color: var(--neon-blue);
             padding: 12px 25px; cursor: pointer; text-transform: uppercase; font-weight: bold; margin: 10px; display: inline-block;
         }
-        .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
+        .btn:hover { background: var(--neon-blue); color: #000; }
         #game-area, #version-menu { display: none; flex-direction: column; align-items: center; position: relative; }
         canvas { border: 2px solid var(--neon-blue); background: #000; }
-        
         #cry-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); display: none;
@@ -57,37 +58,38 @@
         </div>
 
         <div id="version-menu">
-            <h2 style="color:var(--neon-pink)">CORE STABILITY</h2>
-            <div class="btn" onclick="startLoading('1.1')">v1.1</div>
-            <div class="btn" onclick="startLoading('1.2')">v1.2</div>
-            <div class="btn" onclick="startLoading('1.5')">v1.5</div>
+            <h2 id="ver-status" style="color:var(--neon-pink); margin-bottom:20px;">CORE STABILITY</h2>
+            <div class="btn" onclick="startLoading('1.1')">v1.1 (STEALTH)</div>
+            <div class="btn" onclick="startLoading('1.2')">v1.2 (STABLE)</div>
+            <div class="btn" onclick="startLoading('1.5')">v1.5 (OVERCLOCK)</div>
         </div>
 
         <div id="game-area">
-            <div id="cry-screen">
-                <div class="cry-emoji">😭</div>
-                <h2 style="color:var(--neon-red); margin-top:15px;">GAME OVER</h2>
-            </div>
-            <div id="score-text" style="color:var(--neon-blue); margin-bottom:10px;">SCORE: 0</div>
+            <div id="cry-screen"><div class="cry-emoji">😭</div><h2 style="color:var(--neon-red); margin-top:15px;">GAME OVER</h2></div>
+            <div id="score-text" style="color:var(--neon-blue); margin-bottom:10px; font-weight:bold;">SCORE: 0</div>
             <canvas id="stage"></canvas>
         </div>
     </div>
 </div>
 
 <script>
+    // --- MATRIX ENGINE ---
     const mC = document.getElementById('matrix-canvas');
     const mX = mC.getContext('2d');
+    let matrixSpeed = 50;
+    let matrixChar = "01";
     mC.width = window.innerWidth; mC.height = window.innerHeight;
     const drops = Array(Math.floor(mC.width/16)).fill(1);
     function drawM() {
         mX.fillStyle = "rgba(0,0,0,0.1)"; mX.fillRect(0,0,mC.width,mC.height);
         mX.fillStyle = "#00f3ff"; mX.font = "15px monospace";
         drops.forEach((y, i) => {
-            mX.fillText(Math.random() > 0.5 ? "1" : "0", i*16, y*16);
+            const char = matrixChar[Math.floor(Math.random()*matrixChar.length)];
+            mX.fillText(char, i*16, y*16);
             if(y*16 > mC.height && Math.random() > 0.975) drops[i] = 0; drops[i]++;
         });
     }
-    setInterval(drawM, 50);
+    let matrixInterval = setInterval(drawM, matrixSpeed);
 
     let loop;
     const canvas = document.getElementById('stage');
@@ -96,10 +98,7 @@
     function triggerGameOver(restartFunc) {
         clearInterval(loop); cancelAnimationFrame(loop);
         document.getElementById('cry-screen').style.display = 'flex';
-        setTimeout(() => {
-            document.getElementById('cry-screen').style.display = 'none';
-            restartFunc();
-        }, 2000);
+        setTimeout(() => { document.getElementById('cry-screen').style.display = 'none'; restartFunc(); }, 2000);
     }
 
     function resetToMenu() {
@@ -117,15 +116,20 @@
     }
 
     function startLoading(ver) {
-        if(ver === '1.1') mC.style.opacity = "0"; 
-        if(ver === '1.2') mC.style.opacity = "0.2"; 
-        if(ver === '1.5') mC.style.opacity = "0.8";
-        resetToMenu();
+        const status = document.getElementById('ver-status');
+        status.innerText = "INITIALIZING v" + ver + "...";
+        setTimeout(() => {
+            status.innerText = "ACCEPTED";
+            if(ver === '1.1') { mC.style.opacity = "0.1"; matrixChar = "X"; }
+            if(ver === '1.2') { mC.style.opacity = "0.4"; matrixChar = "01"; }
+            if(ver === '1.5') { mC.style.opacity = "0.9"; matrixChar = "FX"; }
+            setTimeout(resetToMenu, 1000);
+        }, 1500);
     }
 
     // --- YILAN ---
     function initSnake() {
-        clearInterval(loop); document.getElementById('menu-content').style.display = 'none';
+        resetToMenu(); document.getElementById('menu-content').style.display = 'none';
         document.getElementById('game-area').style.display = 'flex'; document.getElementById('global-exit').style.display = 'block';
         canvas.width = 400; canvas.height = 400;
         let box = 20, d = "RIGHT", snake = [{x: 9*box, y: 10*box}], food = {x: 40, y: 40};
@@ -142,39 +146,54 @@
         }, 100);
     }
 
-    // --- PACMAN (NOKTALAR GERİ GELDİ) ---
+    // --- PACMAN (WAVE & SNIPER & SYMMETRY) ---
     function initPacman() {
-        clearInterval(loop); document.getElementById('menu-content').style.display = 'none';
-        document.getElementById('game-area').style.display = 'flex';
+        resetToMenu(); document.getElementById('menu-content').style.display = 'none';
+        document.getElementById('game-area').style.display = 'flex'; document.getElementById('global-exit').style.display = 'block';
         canvas.width = 400; canvas.height = 400;
-        let px=200, py=200, pd=0, pScore=0;
+        let px=200, py=200, pd=0, pScore=0, wave=1, bullets=[], lastShot=0;
         let dots = Array.from({length: 10}, () => ({x:Math.random()*380, y:Math.random()*380}));
-        let ghosts = [{x:50, y:50, speed:1.5}];
+        let ghosts = [{x:50, y:50, speed:1.5, type:'chaser'}];
         document.onkeydown = e => { if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2; if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4; };
         loop = setInterval(() => {
             ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
             if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
             if(px < 0) px = 400; if(px > 400) px = 0; if(py < 0) py = 400; if(py > 400) py = 0;
+
+            if(pScore >= 100 && wave == 1) { wave = 2; ghosts.push({x:350,y:350,speed:1, type:'sniper'}); }
+
             dots.forEach((d,i) => {
                 ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill();
-                if(Math.hypot(px-d.x, py-d.y) < 20) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-text').innerText = "SCORE: " + pScore; }
+                if(Math.hypot(px-d.x, py-d.y) < 20) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-text').innerText = "WAVE: "+wave+" | SCORE: " + pScore; }
             });
+
             ghosts.forEach(g => {
                 g.x += (px > g.x ? g.speed : -g.speed); g.y += (py > g.y ? g.speed : -g.speed);
-                ctx.fillStyle="red"; ctx.fillRect(g.x-10, g.y-10, 20, 20);
+                ctx.fillStyle= (g.type=='sniper') ? "#ff8800" : "red"; ctx.fillRect(g.x-10, g.y-10, 20, 20);
+                if(g.type === 'sniper' && Date.now() - lastShot > 2000) {
+                    let angle = Math.atan2(py - g.y, px - g.x);
+                    bullets.push({x:g.x, y:g.y, vx: Math.cos(angle)*4, vy: Math.sin(angle)*4});
+                    lastShot = Date.now();
+                }
                 if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman);
             });
+
+            bullets.forEach((b,i) => {
+                b.x += b.vx; b.y += b.vy; ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(b.x,b.y,3,0,7); ctx.fill();
+                if(Math.hypot(px-b.x, py-b.y) < 15) triggerGameOver(initPacman);
+            });
+
             ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
     }
 
-    // --- TETRIS (RASTGELE BLOKLAR) ---
+    // --- TETRIS RGB (FULL RANDOM PIECES) ---
     function initTetris() {
-        clearInterval(loop); document.getElementById('menu-content').style.display = 'none';
-        document.getElementById('game-area').style.display = 'flex';
+        resetToMenu(); document.getElementById('menu-content').style.display = 'none';
+        document.getElementById('game-area').style.display = 'flex'; document.getElementById('global-exit').style.display = 'block';
         canvas.width = 240; canvas.height = 400;
         ctx.setTransform(1,0,0,1,0,0); ctx.scale(20, 20);
-        const colors = [null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF'];
+        const colors = [null, '#00f3ff', '#ff00ff', '#39ff14', '#ff0033', '#ff8800', '#ffff00', '#9d00ff'];
         const shapes = [
             [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], // I
             [[0,2,0],[0,2,0],[0,2,2]], // L
@@ -186,30 +205,47 @@
         ];
         const arena = Array.from({length: 20}, () => Array(12).fill(0));
         let player = { pos: {x: 4, y: 0}, matrix: shapes[Math.floor(Math.random()*shapes.length)] };
-        function collide() {
-            const [m, o] = [player.matrix, player.pos];
+        
+        function collide(a, p) {
+            const [m, o] = [p.matrix, p.pos];
             for(let y=0; y<m.length; y++) for(let x=0; x<m[y].length; x++)
                 if(m[y][x]!==0 && (arena[y+o.y] && arena[y+o.y][x+o.x])!==0) return true;
             return false;
         }
+
         function playerDrop() {
             player.pos.y++;
-            if (collide()) {
-                player.pos.y--; 
+            if (collide(arena, player)) {
+                player.pos.y--;
                 player.matrix.forEach((r,y)=>r.forEach((v,x)=>{ if(v!==0) arena[y+player.pos.y][x+player.pos.x]=v; }));
                 player.matrix = shapes[Math.floor(Math.random()*shapes.length)];
                 player.pos.y = 0; player.pos.x = 4;
-                if (collide()) triggerGameOver(initTetris);
+                if (collide(arena, player)) triggerGameOver(initTetris);
+                // Line Sweep
+                outer: for(let y=arena.length-1; y>0; y--) {
+                    for(let x=0; x<arena[y].length; x++) if(arena[y][x]===0) continue outer;
+                    arena.splice(y,1); arena.unshift(new Array(12).fill(0)); y++;
+                }
             }
         }
-        function update(time=0) {
+
+        function draw() {
             ctx.fillStyle='#000'; ctx.fillRect(0,0,12,20);
-            arena.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ctx.fillStyle=colors[v]; ctx.fillRect(x,y,1,1);}}));
-            player.matrix.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ctx.fillStyle=colors[v]; ctx.fillRect(x+player.pos.x,y+player.pos.y,1,1);}}));
-            loop = requestAnimationFrame(update);
+            arena.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ctx.fillStyle=colors[v]; ctx.fillRect(x,y,1,1); ctx.strokeStyle="white"; ctx.lineWidth=0.02; ctx.strokeRect(x,y,1,1);}}));
+            player.matrix.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ctx.fillStyle=colors[v]; ctx.fillRect(x+player.pos.x,y+player.pos.y,1,1); ctx.strokeStyle="white"; ctx.lineWidth=0.02; ctx.strokeRect(x+player.pos.x,y+player.pos.y,1,1);}}));
         }
-        setInterval(playerDrop, 800);
-        document.onkeydown = e => { if(e.keyCode==37) { player.pos.x--; if(collide()) player.pos.x++; } if(e.keyCode==39) { player.pos.x++; if(collide()) player.pos.x--; } if(e.keyCode==40) playerDrop(); };
+
+        let lastTime=0, dropCounter=0;
+        function update(time=0) {
+            const dt=time-lastTime; lastTime=time; dropCounter+=dt;
+            if(dropCounter>800) { playerDrop(); dropCounter=0; }
+            draw(); loop=requestAnimationFrame(update);
+        }
+        document.onkeydown = e => { 
+            if(e.keyCode==37) { player.pos.x--; if(collide(arena, player)) player.pos.x++; }
+            if(e.keyCode==39) { player.pos.x++; if(collide(arena, player)) player.pos.x--; }
+            if(e.keyCode==40) playerDrop();
+        };
         update();
     }
 </script>
