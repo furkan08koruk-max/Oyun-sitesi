@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CyberHub Arcade v9.0 | Pro Tetris Update</title>
+    <title>CyberHub Arcade v10.0 | Wave & Effects</title>
     <style>
         :root {
             --neon-blue: #00f3ff;
@@ -34,11 +34,11 @@
             padding: 8px 15px; font-size: 10px;
             border: 1px solid var(--neon-pink); color: var(--neon-pink);
             background: transparent; cursor: pointer; transition: 0.3s;
-            display: none; z-index: 100; text-transform: uppercase;
+            display: none; z-index: 100;
         }
         .exit-btn:hover { background: var(--neon-pink); color: #000; box-shadow: 0 0 15px var(--neon-pink); }
 
-        h1 { font-size: 2.2rem; text-shadow: 0 0 15px var(--neon-blue); margin-bottom: 30px; letter-spacing: 5px; }
+        h1 { font-size: 2.2rem; text-shadow: 0 0 15px var(--neon-blue); margin-bottom: 20px; letter-spacing: 5px; }
 
         .btn {
             background: transparent; border: 2px solid var(--neon-blue); color: var(--neon-blue);
@@ -47,11 +47,9 @@
         }
         .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
 
-        #menu-content { display: block; }
         #game-area { display: none; flex-direction: column; align-items: center; }
-        
-        canvas { border: 2px solid var(--neon-blue); background: #000; box-shadow: 0 0 20px var(--neon-blue); }
-        .score { font-size: 20px; color: var(--neon-blue); margin-bottom: 10px; font-weight: bold; letter-spacing: 2px; }
+        canvas { border: 2px solid var(--neon-blue); background: #000; }
+        .score { font-size: 18px; color: var(--neon-blue); margin-bottom: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -63,11 +61,11 @@
         <button id="global-exit" class="exit-btn" onclick="resetToMenu()">✖ ANA MENÜ</button>
 
         <div id="menu-content">
-            <h1>ARCADE_CORE_V9</h1>
+            <h1>SYSTEM_ARCADE_V10</h1>
             <div class="category-btns">
-                <button class="btn" onclick="initSnake()">🐍 YILAN</button>
-                <button class="btn" onclick="initPacman()">🟡 PACMAN_AI</button>
-                <button class="btn" onclick="initTetris()">🧱 TETRIS_PRO</button>
+                <button class="btn" onclick="initSnake()">🐍 YILAN (FX)</button>
+                <button class="btn" onclick="initPacman()">🟡 PACMAN (WAVES)</button>
+                <button class="btn" onclick="initTetris()">🧱 TETRIS (SLOW)</button>
             </div>
         </div>
 
@@ -79,7 +77,7 @@
 </div>
 
 <script>
-    // 1. Matrix Arka Plan
+    // 1. Matrix Background
     const mC = document.getElementById('matrix-canvas');
     const mX = mC.getContext('2d');
     mC.width = window.innerWidth; mC.height = window.innerHeight;
@@ -103,7 +101,7 @@
         document.getElementById('menu-content').style.display = 'block';
         document.getElementById('game-area').style.display = 'none';
         document.getElementById('global-exit').style.display = 'none';
-        ctx.setTransform(1, 0, 0, 1, 0, 0); 
+        ctx.globalAlpha = 1.0;
     }
 
     function prepareGame(title) {
@@ -111,19 +109,20 @@
         document.getElementById('menu-content').style.display = 'none';
         document.getElementById('game-area').style.display = 'flex';
         document.getElementById('global-exit').style.display = 'block';
-        document.getElementById('score-text').innerText = title + ": 0";
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        document.getElementById('score-text').innerText = title;
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.globalAlpha = 1.0;
     }
 
-    // --- YILAN OYUNU ---
+    // --- 1. YILAN (FADE-OUT EFEKTLİ) ---
     function initSnake() {
-        prepareGame("SNAKE_DATA");
-        let box = 20, score = 0, d = "RIGHT", isDead = false;
-        let snake = [{x: 9*box, y: 10*box}];
+        prepareGame("SNAKE_FX_ACTIVE");
+        let box = 20, score = 0, d = "RIGHT", isDead = false, opacity = 1.0;
+        let snake = [{x: 9*box, y: 10*box}, {x: 8*box, y: 10*box}];
         let food = {x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box};
 
         document.onkeydown = e => {
-            if(isDead) { isDead = false; initSnake(); return; }
+            if(isDead) return;
             if(e.keyCode==37 && d!="RIGHT") d="LEFT";
             if(e.keyCode==38 && d!="DOWN") d="UP";
             if(e.keyCode==39 && d!="LEFT") d="RIGHT";
@@ -131,36 +130,46 @@
         };
 
         loop = setInterval(() => {
-            if(isDead) return;
             ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-            for(let i=0; i<snake.length; i++){
+            
+            if(!isDead) {
+                let sX = snake[0].x, sY = snake[0].y;
+                if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box;
+
+                if(sX < 0 || sX >= 400 || sY < 0 || sY >= 400 || snake.some(t => t.x == sX && t.y == sY)) {
+                    isDead = true;
+                } else {
+                    if(sX == food.x && sY == food.y){
+                        score++; document.getElementById('score-text').innerText = "SCORE: "+score;
+                        food = {x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box};
+                    } else snake.pop();
+                    snake.unshift({x: sX, y: sY});
+                }
+            } else {
+                opacity -= 0.05; // Yavaşça yok olma
+                if(opacity <= 0) {
+                    clearInterval(loop);
+                    document.getElementById('score-text').innerText = "SİSTEM ÇÖKTÜ! SKOR: " + score;
+                    setTimeout(initSnake, 2000);
+                    return;
+                }
+            }
+
+            ctx.globalAlpha = opacity;
+            snake.forEach((p, i) => {
                 ctx.fillStyle = (i==0) ? "#39ff14" : "#008f11";
-                ctx.fillRect(snake[i].x, snake[i].y, box-1, box-1);
-            }
+                ctx.fillRect(p.x, p.y, box-1, box-1);
+            });
             ctx.fillStyle = "#ff00ff"; ctx.fillRect(food.x, food.y, box-1, box-1);
-
-            let sX = snake[0].x, sY = snake[0].y;
-            if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box;
-
-            if(sX < 0 || sX >= 400 || sY < 0 || sY >= 400 || snake.some(t => t.x == sX && t.y == sY)) {
-                isDead = true;
-                document.getElementById('score-text').innerText = "SİSTEM ÇÖKTÜ! SKOR: " + score;
-                return;
-            }
-
-            if(sX == food.x && sY == food.y){
-                score++; document.getElementById('score-text').innerText = "SNAKE_DATA: "+score;
-                food = {x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box};
-            } else snake.pop();
-            snake.unshift({x: sX, y: sY});
+            ctx.globalAlpha = 1.0;
         }, 100);
     }
 
-    // --- PACMAN OYUNU ---
+    // --- 2. PACMAN (DALGA SİSTEMLİ) ---
     function initPacman() {
-        prepareGame("PAC_POINTS");
-        let px=200, py=200, pd=0, pScore=0;
-        let ghost = { x: 20, y: 20, speed: 1.5 };
+        prepareGame("WAVE 1: INITIALIZING...");
+        let px=200, py=200, pd=0, pScore=0, wave=1;
+        let ghosts = [{ x: 50, y: 50, speed: 1.5 }];
         let dots = Array.from({length: 8}, () => ({x:Math.random()*380, y:Math.random()*380}));
 
         document.onkeydown = e => {
@@ -170,119 +179,82 @@
 
         loop = setInterval(() => {
             ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
+            
             if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
             if(px<0) px=400; if(px>400) px=0; if(py<0) py=400; if(py>400) py=0;
 
-            if (ghost.x < px) ghost.x += ghost.speed; else ghost.x -= ghost.speed;
-            if (ghost.y < py) ghost.y += ghost.speed; else ghost.y -= ghost.speed;
+            // Wave Check
+            if(pScore >= wave * 100) {
+                wave++;
+                ghosts.push({ x: Math.random()*400, y: Math.random()*400, speed: 1.5 + (wave*0.2) });
+                document.getElementById('score-text').innerText = "WAVE " + wave + " STARTED!";
+            }
 
-            ctx.fillStyle = "red"; ctx.fillRect(ghost.x-10, ghost.y-10, 20, 20);
-
-            if(Math.hypot(px-ghost.x, py-ghost.y) < 20) { initPacman(); }
+            // Ghost AI & Collision
+            ghosts.forEach(g => {
+                if (g.x < px) g.x += g.speed; else g.x -= g.speed;
+                if (g.y < py) g.y += g.speed; else g.y -= g.speed;
+                ctx.fillStyle = "red"; ctx.fillRect(g.x-10, g.y-10, 20, 20);
+                if(Math.hypot(px-g.x, py-g.y) < 20) { 
+                    alert("ROBOTLAR ELE GEÇİRDİ! DALGA: " + wave); 
+                    initPacman(); 
+                }
+            });
 
             dots.forEach((d,i) => {
                 ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x,d.y,5,0,7); ctx.fill();
                 if(Math.hypot(px-d.x, py-d.y)<20){
                     dots[i]={x:Math.random()*380,y:Math.random()*380};
-                    pScore+=10; document.getElementById('score-text').innerText = "PAC_POINTS: "+pScore;
-                    ghost.speed += 0.05;
+                    pScore+=10; document.getElementById('score-text').innerText = "WAVE: "+wave+" | SCORE: "+pScore;
                 }
             });
             ctx.fillStyle="#ffff00"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
     }
 
-    // --- TETRIS PRO (GELİŞMİŞ) ---
+    // --- 3. TETRIS (YAVAŞLATILMIŞ) ---
     function initTetris() {
-        prepareGame("LINES");
+        prepareGame("TETRIS_SLOW_MODE");
         ctx.scale(20, 20);
-        
-        const COLS = 12; const ROWS = 20;
+        const COLS = 12, ROWS = 20;
         let arena = Array.from({length: ROWS}, () => Array(COLS).fill(0));
-        let score = 0;
-
-        const pieces = [
-            [[1, 1, 1, 1]], // I
-            [[2, 2], [2, 2]], // O
-            [[0, 3, 0], [3, 3, 3]], // T
-            [[4, 4, 0], [0, 4, 4]], // Z
-            [[0, 5, 5], [5, 5, 0]], // S
-            [[6, 0, 0], [6, 6, 6]], // L
-            [[0, 0, 7], [7, 7, 7]]  // J
-        ];
-
-        function createPiece() { return pieces[Math.floor(Math.random() * pieces.length)]; }
-
-        let player = { pos: {x: 4, y: 0}, matrix: createPiece() };
-
-        function collide(arena, player) {
-            const [m, o] = [player.matrix, player.pos];
-            for (let y = 0; y < m.length; ++y) {
-                for (let x = 0; x < m[y].length; ++x) {
-                    if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) return true;
-                }
-            }
-            return false;
-        }
-
-        function merge(arena, player) {
-            player.matrix.forEach((row, y) => {
-                row.forEach((value, x) => {
-                    if (value !== 0) arena[y + player.pos.y][x + player.pos.x] = value;
-                });
-            });
-        }
+        let player = { pos: {x: 4, y: 0}, matrix: [[1,1,1,1]] };
 
         function playerDrop() {
             player.pos.y++;
             if (collide(arena, player)) {
                 player.pos.y--;
                 merge(arena, player);
-                // Bir blok düştü, anında yenisini oluştur
-                playerReset();
-                arenaSweep();
+                player.matrix = [[0,2,0],[2,2,2],[0,0,0]][Math.floor(Math.random()*2)] || [[3,3],[3,3]];
+                player.pos.y = 0;
+                player.pos.x = 4;
             }
         }
 
-        function playerReset() {
-            player.matrix = createPiece();
-            player.pos.y = 0;
-            player.pos.x = Math.floor(COLS / 2) - Math.floor(player.matrix[0].length / 2);
-            if (collide(arena, player)) {
-                arena.forEach(row => row.fill(0));
-                score = 0;
-            }
+        function collide(a, p) {
+            const [m, o] = [p.matrix, p.pos];
+            for(let y=0; y<m.length; y++) 
+                for(let x=0; x<m[y].length; x++) 
+                    if(m[y][x]!==0 && (a[y+o.y] && a[y+o.y][x+o.x])!==0) return true;
+            return false;
         }
 
-        function arenaSweep() {
-            outer: for (let y = arena.length - 1; y > 0; --y) {
-                for (let x = 0; x < arena[y].length; ++x) {
-                    if (arena[y][x] === 0) continue outer;
-                }
-                const row = arena.splice(y, 1)[0].fill(0);
-                arena.unshift(row);
-                score++;
-                document.getElementById('score-text').innerText = "LINES: " + score;
-            }
+        function merge(a, p) {
+            p.matrix.forEach((row, y) => row.forEach((v, x) => { if(v!==0) a[y+p.pos.y][x+p.pos.x]=v; }));
         }
 
         document.onkeydown = e => {
-            if (e.keyCode === 37) { player.pos.x--; if(collide(arena, player)) player.pos.x++; }
-            if (e.keyCode === 39) { player.pos.x++; if(collide(arena, player)) player.pos.x--; }
-            if (e.keyCode === 40) { playerDrop(); }
+            if(e.keyCode==37) player.pos.x--;
+            if(e.keyCode==39) player.pos.x++;
+            if(e.keyCode==40) playerDrop();
         };
 
         loop = setInterval(() => {
             playerDrop();
-            // Çizim
-            ctx.fillStyle = '#000'; ctx.fillRect(0, 0, COLS, ROWS);
-            arena.forEach((row, y) => row.forEach((v, x) => {
-                if(v) { ctx.fillStyle = '--neon-green'; ctx.fillStyle = ['#00f3ff','#ff00ff','#39ff14','#ff0033','#ffff00','#ff8800','#ffffff'][v-1]; ctx.fillRect(x, y, 1, 1); }
-            }));
-            player.matrix.forEach((row, y) => row.forEach((v, x) => {
-                if(v) { ctx.fillStyle = '#fff'; ctx.fillRect(x + player.pos.x, y + player.pos.y, 1, 1); }
-            }));
-        }, 400);
+            ctx.fillStyle = '#000'; ctx.fillRect(0,0,COLS,ROWS);
+            arena.forEach((row,y)=>row.forEach((v,x)=>{ if(v){ctx.fillStyle='#39ff14';ctx.fillRect(x,y,1,1);}}));
+            player.matrix.forEach((row,y)=>row.forEach((v,x)=>{ if(v){ctx.fillStyle='#00f3ff';ctx.fillRect(x+player.pos.x,y+player.pos.y,1,1);}}));
+        }, 600); // 400ms'den 600ms'ye çıkarıldı (Yavaşlatıldı)
     }
 </script>
 </body>
