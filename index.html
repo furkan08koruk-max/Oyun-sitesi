@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | Arcade v13.0</title>
+    <title>Furkan Koruk | Arcade v14.0</title>
     <style>
         :root {
             --neon-blue: #00f3ff;
@@ -47,9 +47,17 @@
         }
         .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
 
-        #game-area { display: none; flex-direction: column; align-items: center; }
+        /* Versiyon Butonu Özel */
+        .ver-btn { border-color: var(--neon-pink); color: var(--neon-pink); }
+        .ver-btn:hover { background: var(--neon-pink); box-shadow: 0 0 20px var(--neon-pink); }
+
+        #game-area, #version-menu { display: none; flex-direction: column; align-items: center; }
         canvas { border: 2px solid var(--neon-blue); background: #000; }
         .score { font-size: 18px; color: var(--neon-blue); margin-bottom: 10px; font-weight: bold; }
+        
+        .version-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+        .ver-card { border: 1px solid #333; padding: 15px; border-radius: 10px; }
+        .loading-text { font-size: 24px; color: var(--neon-green); margin-top: 20px; display: none; }
     </style>
 </head>
 <body>
@@ -62,12 +70,31 @@
 
         <div id="menu-content">
             <h1>FURKAN KORUK</h1>
-            <p style="color: var(--neon-pink); margin-bottom: 20px;">// SNIPER UPDATE ENABLED</p>
             <div class="category-btns">
                 <button class="btn" onclick="initSnake()">🐍 YILAN</button>
-                <button class="btn" onclick="initPacman()">🟡 PACMAN_SNIPER</button>
+                <button class="btn" onclick="initPacman()">🟡 PACMAN</button>
                 <button class="btn" onclick="initTetris()">🧱 TETRIS</button>
+                <button class="btn ver-btn" onclick="showVersions()">📁 VERSION</button>
             </div>
+        </div>
+
+        <div id="version-menu">
+            <h2 style="color: var(--neon-pink); margin-bottom: 10px;">SYSTEM VERSIONS</h2>
+            <div class="version-list">
+                <div class="ver-card">
+                    <h3>v1.1</h3>
+                    <button class="btn" onclick="startLoading('1.1')">SELECT</button>
+                </div>
+                <div class="ver-card">
+                    <h3>v1.2</h3>
+                    <button class="btn" onclick="startLoading('1.2')">SELECT</button>
+                </div>
+                <div class="ver-card">
+                    <h3>v1.5</h3>
+                    <button class="btn" onclick="startLoading('1.5')">SELECT</button>
+                </div>
+            </div>
+            <div id="status-msg" class="loading-text">Initializing...</div>
         </div>
 
         <div id="game-area">
@@ -78,6 +105,7 @@
 </div>
 
 <script>
+    // Matrix Arka Plan (v13 ile aynı)
     const mC = document.getElementById('matrix-canvas');
     const mX = mC.getContext('2d');
     mC.width = window.innerWidth; mC.height = window.innerHeight;
@@ -96,10 +124,34 @@
     const canvas = document.getElementById('stage');
     const ctx = canvas.getContext('2d');
 
+    // Menü ve Yükleme Fonksiyonları
+    function showVersions() {
+        document.getElementById('menu-content').style.display = 'none';
+        document.getElementById('version-menu').style.display = 'flex';
+        document.getElementById('global-exit').style.display = 'block';
+        document.getElementById('status-msg').style.display = 'none';
+    }
+
+    function startLoading(ver) {
+        const msg = document.getElementById('status-msg');
+        msg.style.display = 'block';
+        msg.innerText = "Initializing v" + ver + "...";
+        msg.style.color = "var(--neon-blue)";
+
+        setTimeout(() => {
+            msg.innerText = "ACCEPTED";
+            msg.style.color = "var(--neon-green)";
+            setTimeout(() => {
+                resetToMenu();
+            }, 1000);
+        }, 2000);
+    }
+
     function resetToMenu() {
         clearInterval(loop);
         document.getElementById('menu-content').style.display = 'block';
         document.getElementById('game-area').style.display = 'none';
+        document.getElementById('version-menu').style.display = 'none';
         document.getElementById('global-exit').style.display = 'none';
         ctx.setTransform(1,0,0,1,0,0);
         ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -114,17 +166,15 @@
         ctx.setTransform(1,0,0,1,0,0);
     }
 
-    // --- YILAN (Aynı Kaldı) ---
+    // --- OYUN KODLARI (SNAKE, PACMAN_SNIPER, TETRIS AYNI KALDI) ---
     function initSnake() {
         prepareGame("SNAKE CORE");
         let box = 20, score = 0, d = "RIGHT", isDead = false, opacity = 1.0;
         let snake = [{x: 9*box, y: 10*box}];
         let food = {x: Math.floor(Math.random()*19)*box, y: Math.floor(Math.random()*19)*box};
         document.onkeydown = e => { if(!isDead) {
-            if(e.keyCode==37 && d!="RIGHT") d="LEFT";
-            if(e.keyCode==38 && d!="DOWN") d="UP";
-            if(e.keyCode==39 && d!="LEFT") d="RIGHT";
-            if(e.keyCode==40 && d!="UP") d="DOWN";
+            if(e.keyCode==37 && d!="RIGHT") d="LEFT"; if(e.keyCode==38 && d!="DOWN") d="UP";
+            if(e.keyCode==39 && d!="LEFT") d="RIGHT"; if(e.keyCode==40 && d!="UP") d="DOWN";
         }};
         loop = setInterval(() => {
             ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
@@ -145,127 +195,34 @@
         }, 100);
     }
 
-    // --- PACMAN (ATEŞ EDEN ROBOT GÜNCELLEMESİ) ---
     function initPacman() {
-        prepareGame("PACMAN SNIPER MODE");
+        prepareGame("PACMAN SNIPER");
         let px=200, py=200, pd=0, pScore=0, wave=1, isExploding = false, boomRadius = 0;
         let ghosts = [{ x: 50, y: 50, speed: 1.5, type: 'chaser' }];
         let bullets = [];
         let dots = Array.from({length: 8}, () => ({x:Math.random()*380, y:Math.random()*380}));
-        
         let lastShot = 0;
 
-        document.onkeydown = e => { if(!isExploding) { 
-            if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2; 
-            if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4; 
-        }};
-
+        document.onkeydown = e => { if(!isExploding) { if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2; if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4; }};
         loop = setInterval(() => {
             ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
-            
-            if(isExploding) {
-                boomRadius += 10; ctx.strokeStyle = "yellow"; ctx.lineWidth = 3;
-                ctx.beginPath(); ctx.arc(px, py, boomRadius, 0, Math.PI*2); ctx.stroke();
-                if(boomRadius > 100) initPacman(); return;
-            }
-
+            if(isExploding) { boomRadius += 10; ctx.strokeStyle = "yellow"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, boomRadius, 0, Math.PI*2); ctx.stroke(); if(boomRadius > 100) initPacman(); return; }
             if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
             if(px<0) px=400; if(px>400) px=0; if(py<0) py=400; if(py>400) py=0;
-
-            // Wave & Sniper Logic
-            if(pScore >= wave * 100) {
-                wave++;
-                let newType = wave >= 2 ? 'sniper' : 'chaser';
-                ghosts.push({ x: Math.random()*400, y: Math.random()*400, speed: 1.2 + (wave*0.1), type: newType });
-            }
-
-            // Ghost & Sniper AI
+            if(pScore >= wave * 100) { wave++; ghosts.push({ x: Math.random()*400, y: Math.random()*400, speed: 1.2 + (wave*0.1), type: wave>=2?'sniper':'chaser' }); }
             ghosts.forEach(g => {
                 if (g.x < px) g.x += g.speed; else g.x -= g.speed;
                 if (g.y < py) g.y += g.speed; else g.y -= g.speed;
-                
-                // Sniper Ateş Mekaniği
-                if(g.type === 'sniper' && Date.now() - lastShot > 2000) {
-                    let angle = Math.atan2(py - g.y, px - g.x);
-                    bullets.push({ x: g.x, y: g.y, vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5 });
-                    lastShot = Date.now();
-                }
-
-                ctx.fillStyle = g.type === 'sniper' ? "#ff8800" : "red";
-                ctx.fillRect(g.x-10, g.y-10, 20, 20);
-                if(g.type === 'sniper') { // Sniper görseli için küçük bir detay
-                    ctx.strokeStyle = "white"; ctx.strokeRect(g.x-12, g.y-12, 24, 24);
-                }
+                if(g.type === 'sniper' && Date.now() - lastShot > 2000) { let angle = Math.atan2(py - g.y, px - g.x); bullets.push({ x: g.x, y: g.y, vx: Math.cos(angle) * 5, vy: Math.sin(angle) * 5 }); lastShot = Date.now(); }
+                ctx.fillStyle = g.type === 'sniper' ? "#ff8800" : "red"; ctx.fillRect(g.x-10, g.y-10, 20, 20);
                 if(Math.hypot(px-g.x, py-g.y) < 20) isExploding = true;
             });
-
-            // Mermi Kontrolü
-            bullets.forEach((b, index) => {
-                b.x += b.vx; b.y += b.vy;
-                ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, 7); ctx.fill();
-                // Mermi çarpışma
-                if(Math.hypot(px-b.x, py-b.y) < 15) isExploding = true;
-                // Ekran dışı mermi silme
-                if(b.x < 0 || b.x > 400 || b.y < 0 || b.y > 400) bullets.splice(index, 1);
-            });
-
-            dots.forEach((d,i) => {
-                ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x,d.y,5,0,7); ctx.fill();
-                if(Math.hypot(px-d.x, py-d.y)<20){ 
-                    dots[i]={x:Math.random()*380,y:Math.random()*380}; 
-                    pScore+=10; 
-                    document.getElementById('score-text').innerText = "WAVE: "+wave+" | SCORE: "+pScore; 
-                }
-            });
-
+            bullets.forEach((b, index) => { b.x += b.vx; b.y += b.vy; ctx.fillStyle = "white"; ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, 7); ctx.fill(); if(Math.hypot(px-b.x, py-b.y) < 15) isExploding = true; if(b.x < 0 || b.x > 400 || b.y < 0 || b.y > 400) bullets.splice(index, 1); });
+            dots.forEach((d,i) => { ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x,d.y,5,0,7); ctx.fill(); if(Math.hypot(px-d.x, py-d.y)<20){ dots[i]={x:Math.random()*380,y:Math.random()*380}; pScore+=10; document.getElementById('score-text').innerText = "WAVE: "+wave+" | SCORE: "+pScore; } });
             ctx.fillStyle="#ffff00"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
     }
 
-    // --- TETRIS (Aynı Kaldı) ---
     function initTetris() {
         prepareGame("TETRIS MODULE");
-        ctx.scale(20, 20);
-        const COLS = 12, ROWS = 20;
-        let arena = Array.from({length: ROWS}, () => Array(COLS).fill(0));
-        let player = { pos: {x: 4, y: 0}, matrix: [[2,2],[2,2]] };
-        let isGameOver = false;
-        function collide(a, p) {
-            const [m, o] = [p.matrix, p.pos];
-            for(let y=0; y<m.length; y++) 
-                for(let x=0; x<m[y].length; x++) 
-                    if(m[y][x]!==0 && (a[y+o.y] && a[y+o.y][x+o.x])!==0) return true;
-            return false;
-        }
-        function merge(a, p) { p.matrix.forEach((row, y) => row.forEach((v, x) => { if(v!==0) a[y+p.pos.y][x+p.pos.x]=v; })); }
-        function playerDrop() {
-            player.pos.y++;
-            if (collide(arena, player)) {
-                player.pos.y--; merge(arena, player);
-                player.pos.y = 0; player.pos.x = 4;
-                player.matrix = [[1,1,1,1], [2,2], [3,3,3,0,3,0]][Math.floor(Math.random()*3)];
-                if (collide(arena, player)) isGameOver = true;
-            }
-        }
-        document.onkeydown = e => { if(!isGameOver) {
-            if(e.keyCode==37) { player.pos.x--; if(collide(arena, player)) player.pos.x++; }
-            if(e.keyCode==39) { player.pos.x++; if(collide(arena, player)) player.pos.x--; }
-            if(e.keyCode==40) playerDrop();
-        }};
-        loop = setInterval(() => {
-            if(isGameOver) {
-                ctx.setTransform(1,0,0,1,0,0);
-                ctx.fillStyle = "rgba(255, 0, 0, 0.7)"; ctx.fillRect(0, 0, 400, 400);
-                ctx.fillStyle = "white"; ctx.font = "30px Arial"; ctx.textAlign = "center";
-                ctx.fillText("KAYBETTİNİZ!", 200, 200);
-                return;
-            }
-            playerDrop();
-            ctx.fillStyle = '#000'; ctx.fillRect(0,0,COLS,ROWS);
-            arena.forEach((row,y)=>row.forEach((v,x)=>{ if(v){ctx.fillStyle='#39ff14';ctx.fillRect(x,y,1,1);}}));
-            player.matrix.forEach((row,y)=>row.forEach((v,x)=>{ if(v){ctx.fillStyle='#00f3ff';ctx.fillRect(x+player.pos.x,y+player.pos.y,1,1);}}));
-        }, 600);
-    }
-</script>
-</body>
-</html>
+        ctx.scale(20,
