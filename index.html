@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | Arcade v15.8</title>
+    <title>Furkan Koruk | Arcade v15.9</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -32,13 +32,14 @@
         #game-area, #version-menu { display: none; flex-direction: column; align-items: center; position: relative; }
         canvas { border: 2px solid var(--neon-blue); background: #000; }
         
-        #happy-screen {
+        /* AĞLAYAN ÇOCUK EKRANI (GERİ GELDİ) */
+        #cry-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); display: none;
             flex-direction: column; align-items: center; justify-content: center; z-index: 500;
         }
-        .happy-emoji { font-size: 100px; animation: bounce 0.5s infinite alternate; }
-        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-20px); } }
+        .cry-emoji { font-size: 100px; animation: sob 0.6s infinite alternate; }
+        @keyframes sob { from { transform: scale(1); opacity: 0.8; } to { transform: scale(1.1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -65,9 +66,9 @@
         </div>
 
         <div id="game-area">
-            <div id="happy-screen">
-                <div class="happy-emoji">😂</div>
-                <h2 style="color:var(--neon-green); margin-top:15px;">YENİDEN BAŞLIYOR!</h2>
+            <div id="cry-screen">
+                <div class="cry-emoji">😭</div>
+                <h2 style="color:var(--neon-red); margin-top:15px; letter-spacing:5px;">GAME OVER</h2>
             </div>
             <div id="score-display" style="color:var(--neon-blue); margin-bottom:10px; font-weight:bold;">SCORE: 0</div>
             <canvas id="stage"></canvas>
@@ -124,14 +125,14 @@
         }, 1200);
     }
 
-    function showHappyRestart(callback) {
+    function triggerGameOver(restartFunc) {
         if(activeLoop) { clearInterval(activeLoop); cancelAnimationFrame(activeLoop); activeLoop = null; }
-        const happy = document.getElementById('happy-screen');
-        happy.style.display = 'flex';
-        setTimeout(() => { happy.style.display = 'none'; callback(); }, 1500);
+        const cry = document.getElementById('cry-screen');
+        cry.style.display = 'flex';
+        setTimeout(() => { cry.style.display = 'none'; restartFunc(); }, 2000);
     }
 
-    // --- YILAN (Skor +1) ---
+    // --- YILAN ---
     function initSnake() {
         resetToMenu();
         document.getElementById('menu-content').style.display = 'none';
@@ -145,11 +146,10 @@
             ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
             let sX = snake[0].x, sY = snake[0].y;
             if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box;
-            if(sX < 0 || sX >= 400 || sY < 0 || sY >= 400 || snake.some(t => t.x == sX && t.y == sY)) { showHappyRestart(initSnake); return; }
+            if(sX < 0 || sX >= 400 || sY < 0 || sY >= 400 || snake.some(t => t.x == sX && t.y == sY)) { triggerGameOver(initSnake); return; }
             if(sX == food.x && sY == food.y) {
                 food = {x:Math.floor(Math.random()*19)*box, y:Math.floor(Math.random()*19)*box};
-                sScore += 1; // +1 Puan
-                document.getElementById('score-display').innerText = "SCORE: " + sScore;
+                sScore += 1; document.getElementById('score-display').innerText = "SCORE: " + sScore;
             } else { snake.pop(); }
             snake.unshift({x:sX, y:sY});
             snake.forEach((p, i) => { ctx.fillStyle = i==0 ? "#39ff14" : "#008f11"; ctx.fillRect(p.x, p.y, box-1, box-1); });
@@ -157,7 +157,7 @@
         }, 100);
     }
 
-    // --- PACMAN (Skor +10) ---
+    // --- PACMAN ---
     function initPacman() {
         resetToMenu();
         document.getElementById('menu-content').style.display = 'none';
@@ -178,8 +178,7 @@
                 ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill();
                 if(Math.hypot(px-d.x, py-d.y) < 20) { 
                     dots[i] = {x:Math.random()*380, y:Math.random()*380}; 
-                    pScore += 10; // +10 Puan
-                    document.getElementById('score-display').innerText = (wave > 1 ? "WAVE 2 | " : "") + "SCORE: " + pScore; 
+                    pScore += 10; document.getElementById('score-display').innerText = (wave > 1 ? "WAVE 2 | " : "") + "SCORE: " + pScore; 
                 }
             });
             ghosts.forEach(g => {
@@ -190,17 +189,17 @@
                     bullets.push({x:g.x, y:g.y, vx: Math.cos(angle)*5, vy: Math.sin(angle)*5});
                     lastShot = Date.now();
                 }
-                if(Math.hypot(px-g.x, py-g.y) < 20) showHappyRestart(initPacman);
+                if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman);
             });
             bullets.forEach(b => {
                 b.x += b.vx; b.y += b.vy; ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(b.x,b.y,3,0,7); ctx.fill();
-                if(Math.hypot(px-b.x, py-b.y) < 15) showHappyRestart(initPacman);
+                if(Math.hypot(px-b.x, py-b.y) < 15) triggerGameOver(initPacman);
             });
             ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
     }
 
-    // --- TETRIS (Skor Satır Başı +100) ---
+    // --- TETRIS ---
     function initTetris() {
         resetToMenu();
         document.getElementById('menu-content').style.display = 'none';
@@ -229,11 +228,11 @@
                 player.matrix.forEach((r,y)=>r.forEach((v,x)=>{ if(v!==0) arena[y+player.pos.y][x+player.pos.x]=v; }));
                 player.matrix = shapes[Math.floor(Math.random()*shapes.length)];
                 player.pos.y = 0; player.pos.x = 4;
-                if (collide()) showHappyRestart(initTetris);
+                if (collide()) triggerGameOver(initTetris);
                 outer: for(let y=arena.length-1; y>0; y--) {
                     for(let x=0; x<arena[y].length; x++) if(arena[y][x]===0) continue outer;
                     arena.splice(y,1); arena.unshift(new Array(12).fill(0)); 
-                    tScore += 100; // Her satır +100 Puan
+                    tScore += 100;
                     document.getElementById('score-display').innerText = "SCORE: " + tScore; y++;
                 }
             }
