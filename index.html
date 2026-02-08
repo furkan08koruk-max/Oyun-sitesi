@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | v16.5 Side-Panel</title>
+    <title>Furkan Koruk | v16.8 Final</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -16,14 +16,12 @@
         .wrapper { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; }
         .main-container { display: flex; gap: 20px; width: 95%; max-width: 1100px; height: 600px; }
 
-        /* ANA PANEL */
         .main-panel {
             flex: 3; background: var(--panel-bg); border: 2px solid var(--neon-blue);
             padding: 30px; border-radius: 20px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
             position: relative; text-align: center;
         }
 
-        /* ANİMASYONLU YAN PANEL (VERSIONLAR) */
         .side-panel {
             flex: 0.15; min-width: 70px; background: rgba(255, 0, 255, 0.05); 
             border: 2px solid rgba(255, 0, 255, 0.3); padding: 20px; border-radius: 20px;
@@ -44,12 +42,10 @@
         .btn { background: transparent; border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 10px 22px; cursor: pointer; text-transform: uppercase; font-weight: 900; margin: 5px; display: inline-block; transition: 0.3s; }
         .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
         .ver-btn { border-color: var(--neon-pink); color: var(--neon-pink); width: 100%; }
-        .ver-btn:hover { background: var(--neon-pink); color: #fff; }
 
         #info-box { margin-top: 30px; padding: 20px; border: 1px dashed rgba(0, 243, 255, 0.2); background: rgba(0, 243, 255, 0.03); border-radius: 10px; text-align: left; }
         .info-header { color: var(--neon-pink); font-size: 0.7rem; letter-spacing: 3px; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid rgba(255, 0, 255, 0.2); display: inline-block; }
-        .info-item { margin-bottom: 12px; font-size: 0.9rem; color: #e0e0e0; line-height: 1.6; font-family: 'Consolas', monospace; }
-        .info-item b { color: var(--neon-blue); }
+        .info-item { margin-bottom: 12px; font-size: 0.9rem; color: #e0e0e0; font-family: 'Consolas', monospace; }
 
         #game-area { display: none; flex-direction: column; align-items: center; position: relative; }
         canvas { border: 2px solid var(--neon-blue); background: #000; }
@@ -72,10 +68,9 @@
                 <button class="btn" onclick="initTetris()">🧱 TETRIS RGB</button>
 
                 <div id="info-box">
-                    <div class="info-header">> ARCADE_FINAL_LOG_16.5.EXE</div>
-                    <div class="info-item">◈ <b>SNAKE:</b> Robotik mavi mod aktif.</div>
-                    <div class="info-item">◈ <b>PACMAN:</b> <b>TUNNEL ACTIVE:</b> Duvarlardan geçiş yapabilirsin.</div>
-                    <div class="info-item">◈ <b>VERSION:</b> Sağdaki yan panele göz atın.</div>
+                    <div class="info-header">> ARCADE_FINAL_LOG_16.8.EXE</div>
+                    <div class="info-item">◈ <b>SNIPER BOT:</b> Pacman'de 100 puanda aktifleşir.</div>
+                    <div class="info-item">◈ <b>CROSS-SCORE:</b> Devre dışı. Skorlar her oyunda sıfırlanır.</div>
                 </div>
             </div>
 
@@ -89,7 +84,6 @@
         <div id="right-panel" class="side-panel">
             <div class="side-label">VERSIONS</div>
             <div class="side-content">
-                <h3 style="color:var(--neon-pink); margin-bottom:15px; font-size:0.8rem;">SYSTEM CORE</h3>
                 <button class="btn ver-btn" onclick="applyVersion('1.1')">v1.1 DARK</button>
                 <button class="btn ver-btn" onclick="applyVersion('1.2')">v1.2 STABLE</button>
                 <button class="btn ver-btn" onclick="applyVersion('1.5')">v1.5 BRIGHT</button>
@@ -100,7 +94,6 @@
 </div>
 
 <script>
-    // MATRIX ENGINE (v16.5)
     const mC = document.getElementById('matrix-canvas');
     const mX = mC.getContext('2d');
     mC.width = window.innerWidth; mC.height = window.innerHeight;
@@ -121,13 +114,10 @@
     }
 
     function applyVersion(ver) {
-        const s = document.getElementById('ver-status'); s.innerText = "LOADING...";
-        setTimeout(() => {
-            if(ver === '1.1') mC.style.opacity = "0"; 
-            if(ver === '1.2') mC.style.opacity = "0.4"; 
-            if(ver === '1.5') mC.style.opacity = "1";
-            s.innerText = "v" + ver + " ACTIVE";
-        }, 800);
+        if(ver === '1.1') mC.style.opacity = "0"; 
+        if(ver === '1.2') mC.style.opacity = "0.4"; 
+        if(ver === '1.5') mC.style.opacity = "1";
+        document.getElementById('ver-status').innerText = "v" + ver + " ACTIVE";
     }
 
     function triggerGameOver(restart) {
@@ -136,36 +126,62 @@
         setTimeout(() => { document.getElementById('cry-screen').style.display = 'none'; restart(); }, 2000);
     }
 
-    // PACMAN PORTAL (v16.5)
+    // PACMAN + SNIPER ROBOT
     function initPacman() {
         resetToMenu(); document.getElementById('menu-content').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
+        let pScore = 0; document.getElementById('score-display').innerText = "SCORE: 0";
         canvas.width = 400; canvas.height = 400;
-        let pScore=0, px=200, py=200, pd=0;
+        let px=200, py=200, pd=0, lastShot=0;
         let dots = Array.from({length: 10}, () => ({x:Math.random()*380, y:Math.random()*380}));
-        let ghosts = [{x:50, y:50, speed:1.5}];
+        let ghosts = [{x:50, y:50, speed:1.5, type:'normal'}];
+        let bullets = [];
+
         document.onkeydown = e => { if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2; if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4; };
         gameInterval = setInterval(() => {
             ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
             if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
-            if(px < 0) px = 400; if(px > 400) px = 0; if(py < 0) py = 400; if(py > 400) py = 0; // Portal
-            dots.forEach((d,i) => { ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill(); if(Math.hypot(px-d.x, py-d.y) < 20) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-display').innerText = "SCORE: " + pScore; } });
-            ghosts.forEach(g => { g.x += (px > g.x ? g.speed : -g.speed); g.y += (py > g.y ? g.speed : -g.speed); ctx.fillStyle="red"; ctx.fillRect(g.x-10, g.y-10, 20, 20); if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman); });
+            if(px < 0) px = 400; if(px > 400) px = 0; if(py < 0) py = 400; if(py > 400) py = 0;
+
+            if(pScore >= 100 && !ghosts.find(g => g.type === 'sniper')) ghosts.push({x:350, y:350, speed:1.2, type:'sniper'});
+
+            dots.forEach((d,i) => { 
+                ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill(); 
+                if(Math.hypot(px-d.x, py-d.y) < 20) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-display').innerText = "SCORE: " + pScore; } 
+            });
+
+            ghosts.forEach(g => {
+                g.x += (px > g.x ? g.speed : -g.speed); g.y += (py > g.y ? g.speed : -g.speed);
+                ctx.fillStyle = (g.type === 'sniper' ? "yellow" : "red"); ctx.fillRect(g.x-10, g.y-10, 20, 20);
+                if(g.type === 'sniper' && Date.now() - lastShot > 2000) {
+                    let angle = Math.atan2(py-g.y, px-g.x);
+                    bullets.push({x: g.x, y: g.y, vx: Math.cos(angle)*5, vy: Math.sin(angle)*5});
+                    lastShot = Date.now();
+                }
+                if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman);
+            });
+
+            bullets.forEach((b, i) => {
+                b.x += b.vx; b.y += b.vy; ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, 7); ctx.fill();
+                if(Math.hypot(px-b.x, py-b.y) < 15) triggerGameOver(initPacman);
+                if(b.x < 0 || b.x > 400 || b.y < 0 || b.y > 400) bullets.splice(i, 1);
+            });
+
             ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
     }
 
-    // SNAKE (v16.5)
     function initSnake() {
         resetToMenu(); document.getElementById('menu-content').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
-        canvas.width=400; canvas.height=400; let sS=0, box=20, d="RIGHT", snake=[{x:9*box, y:10*box}], food={x:40, y:40};
+        let sS = 0; document.getElementById('score-display').innerText = "SCORE: 0";
+        canvas.width=400; canvas.height=400; let box=20, d="RIGHT", snake=[{x:9*box, y:10*box}], food={x:40, y:40};
         document.onkeydown=e=>{ if(e.keyCode==37 && d!="RIGHT") d="LEFT"; if(e.keyCode==38 && d!="DOWN") d="UP"; if(e.keyCode==39 && d!="LEFT") d="RIGHT"; if(e.keyCode==40 && d!="UP") d="DOWN"; };
         gameInterval=setInterval(()=>{ ctx.fillStyle="#000b1a"; ctx.fillRect(0,0,400,400); let sX=snake[0].x, sY=snake[0].y; if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box; if(sX<0||sX>=400||sY<0||sY>=400||snake.some(t=>t.x==sX&&t.y==sY)){triggerGameOver(initSnake);return;} if(sX==food.x&&sY==food.y){food={x:Math.floor(Math.random()*19)*box, y:Math.floor(Math.random()*19)*box}; sS++; document.getElementById('score-display').innerText="SCORE: "+sS;}else{snake.pop();} snake.unshift({x:sX, y:sY}); snake.forEach((p,i)=>{ctx.fillStyle=i==0?"#00f3ff":"#005a66"; ctx.fillRect(p.x+2,p.y+2,box-4,box-4);}); ctx.fillStyle="#ff00ff"; ctx.fillRect(food.x+5,food.y+5,10,10); },100);
     }
 
-    // TETRIS (v16.5)
     function initTetris() {
         resetToMenu(); document.getElementById('menu-content').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
-        canvas.width=240; canvas.height=400; let tS=0; const c=[null,'#00f3ff','#ff00ff','#39ff14','#ff0033','#ff8800','#ffff00','#9d00ff'];
+        let tS = 0; document.getElementById('score-display').innerText = "SCORE: 0";
+        canvas.width=240; canvas.height=400; const c=[null,'#00f3ff','#ff00ff','#39ff14','#ff0033','#ff8800','#ffff00','#9d00ff'];
         const sh=[[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],[[0,2,0],[0,2,0],[0,2,2]],[[0,3,0],[0,3,0],[3,3,0]],[[4,4],[4,4]],[[0,5,0],[5,5,5],[0,0,0]],[[0,6,6],[6,6,0],[0,0,0]],[[7,7,0],[0,7,7],[0,0,0]]];
         const ar=Array.from({length:20},()=>Array(12).fill(0)); let p={pos:{x:4,y:0},matrix:sh[Math.floor(Math.random()*sh.length)]};
         function rot(m){for(let y=0;y<m.length;++y){for(let x=0;x<y;++x){[m[x][y],m[y][x]]=[m[y][x],m[x][y]];}} m.forEach(r=>r.reverse());}
