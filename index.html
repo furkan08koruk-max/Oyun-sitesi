@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | Arcade v15.6</title>
+    <title>Furkan Koruk | Arcade v15.7</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -32,7 +32,6 @@
         #game-area, #version-menu { display: none; flex-direction: column; align-items: center; position: relative; }
         canvas { border: 2px solid var(--neon-blue); background: #000; }
         
-        /* GÜLEN İNSAN EKRANI */
         #happy-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.95); display: none;
@@ -96,13 +95,17 @@
     const canvas = document.getElementById('stage');
     const ctx = canvas.getContext('2d');
 
+    // Skor ve ekranı tamamen sıfırlayan ana fonksiyon
     function resetToMenu() {
         if(activeLoop) { clearInterval(activeLoop); cancelAnimationFrame(activeLoop); activeLoop = null; }
         document.getElementById('menu-content').style.display = 'block';
         document.getElementById('game-area').style.display = 'none';
         document.getElementById('version-menu').style.display = 'none';
         document.getElementById('global-exit').style.display = 'none';
+        document.getElementById('score-display').innerText = "SCORE: 0"; // Her çıkışta arayüz skoru sıfırlanır
         document.onkeydown = null;
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.clearRect(0,0,canvas.width,canvas.height);
     }
 
     function showVersions() {
@@ -130,13 +133,14 @@
         setTimeout(() => { happy.style.display = 'none'; callback(); }, 1500);
     }
 
-    // --- YILAN MODÜLÜ (Bağımsız) ---
+    // --- YILAN MODÜLÜ ---
     function initSnake() {
         resetToMenu();
         document.getElementById('menu-content').style.display = 'none';
         document.getElementById('game-area').style.display = 'flex';
         document.getElementById('global-exit').style.display = 'block';
         canvas.width = 400; canvas.height = 400;
+        let sScore = 0; // Yerel Skor
         let box = 20, d = "RIGHT", snake = [{x: 9*box, y: 10*box}], food = {x: 40, y: 40};
         document.onkeydown = e => { if(e.keyCode==37 && d!="RIGHT") d="LEFT"; if(e.keyCode==38 && d!="DOWN") d="UP"; if(e.keyCode==39 && d!="LEFT") d="RIGHT"; if(e.keyCode==40 && d!="UP") d="DOWN"; };
         activeLoop = setInterval(() => {
@@ -144,21 +148,25 @@
             let sX = snake[0].x, sY = snake[0].y;
             if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box;
             if(sX < 0 || sX >= 400 || sY < 0 || sY >= 400 || snake.some(t => t.x == sX && t.y == sY)) { showHappyRestart(initSnake); return; }
-            if(sX == food.x && sY == food.y) food = {x:Math.floor(Math.random()*19)*box, y:Math.floor(Math.random()*19)*box}; else snake.pop();
+            if(sX == food.x && sY == food.y) {
+                food = {x:Math.floor(Math.random()*19)*box, y:Math.floor(Math.random()*19)*box};
+                sScore += 10; document.getElementById('score-display').innerText = "SCORE: " + sScore;
+            } else { snake.pop(); }
             snake.unshift({x:sX, y:sY});
             snake.forEach((p, i) => { ctx.fillStyle = i==0 ? "#39ff14" : "#008f11"; ctx.fillRect(p.x, p.y, box-1, box-1); });
             ctx.fillStyle = "#ff00ff"; ctx.fillRect(food.x, food.y, box-1, box-1);
         }, 100);
     }
 
-    // --- PACMAN MODÜLÜ (Bağımsız + Sniper) ---
+    // --- PACMAN MODÜLÜ ---
     function initPacman() {
         resetToMenu();
         document.getElementById('menu-content').style.display = 'none';
         document.getElementById('game-area').style.display = 'flex';
         document.getElementById('global-exit').style.display = 'block';
         canvas.width = 400; canvas.height = 400;
-        let px=200, py=200, pd=0, pScore=0, wave=1, bullets=[], lastShot=0;
+        let pScore=0, wave=1, bullets=[], lastShot=0;
+        let px=200, py=200, pd=0;
         let dots = Array.from({length: 10}, () => ({x:Math.random()*380, y:Math.random()*380}));
         let ghosts = [{x:50, y:50, speed:1.5, type:'chaser'}];
         document.onkeydown = e => { if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2; if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4; };
@@ -189,33 +197,28 @@
         }, 30);
     }
 
-    // --- TETRIS MODÜLÜ (Bağımsız + RGB) ---
+    // --- TETRIS MODÜLÜ ---
     function initTetris() {
         resetToMenu();
         document.getElementById('menu-content').style.display = 'none';
         document.getElementById('game-area').style.display = 'flex';
         document.getElementById('global-exit').style.display = 'block';
         canvas.width = 240; canvas.height = 400;
-        ctx.setTransform(1,0,0,1,0,0); ctx.scale(20, 20);
+        ctx.scale(20, 20);
+        let tScore = 0;
         const colors = [null, '#00f3ff', '#ff00ff', '#39ff14', '#ff0033', '#ff8800', '#ffff00', '#9d00ff'];
         const shapes = [
-            [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], // I (Cyan)
-            [[0,2,0],[0,2,0],[0,2,2]], // L (Pink)
-            [[0,3,0],[0,3,0],[3,3,0]], // J (Green)
-            [[4,4],[4,4]], // O (Red)
-            [[0,5,0],[5,5,5],[0,0,0]], // T (Orange)
-            [[0,6,6],[6,6,0],[0,0,0]], // S (Yellow)
-            [[7,7,0],[0,7,7],[0,0,0]]  // Z (Purple)
+            [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], [[0,2,0],[0,2,0],[0,2,2]],
+            [[0,3,0],[0,3,0],[3,3,0]], [[4,4],[4,4]], [[0,5,0],[5,5,5],[0,0,0]],
+            [[0,6,6],[6,6,0],[0,0,0]], [[7,7,0],[0,7,7],[0,0,0]]
         ];
         const arena = Array.from({length: 20}, () => Array(12).fill(0));
         let player = { pos: {x: 4, y: 0}, matrix: shapes[Math.floor(Math.random()*shapes.length)] };
-        
         function collide() {
             for(let y=0; y<player.matrix.length; y++) for(let x=0; x<player.matrix[y].length; x++)
                 if(player.matrix[y][x]!==0 && (arena[y+player.pos.y] && arena[y+player.pos.y][x+player.pos.x])!==0) return true;
             return false;
         }
-
         function playerDrop() {
             player.pos.y++;
             if (collide()) {
@@ -226,25 +229,23 @@
                 if (collide()) showHappyRestart(initTetris);
                 outer: for(let y=arena.length-1; y>0; y--) {
                     for(let x=0; x<arena[y].length; x++) if(arena[y][x]===0) continue outer;
-                    arena.splice(y,1); arena.unshift(new Array(12).fill(0)); y++;
+                    arena.splice(y,1); arena.unshift(new Array(12).fill(0)); tScore += 100;
+                    document.getElementById('score-display').innerText = "SCORE: " + tScore; y++;
                 }
             }
         }
-
         document.onkeydown = e => {
             if(e.keyCode==37) { player.pos.x--; if(collide()) player.pos.x++; }
             if(e.keyCode==39) { player.pos.x++; if(collide()) player.pos.x--; }
             if(e.keyCode==40) playerDrop();
         };
-
         function draw() {
             ctx.fillStyle='#000'; ctx.fillRect(0,0,12,20);
-            arena.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ctx.fillStyle=colors[v]; ctx.fillRect(x,y,1,1); ctx.strokeStyle="white"; ctx.lineWidth=0.02; ctx.strokeRect(x,y,1,1);}}));
-            player.matrix.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ctx.fillStyle=colors[v]; ctx.fillRect(x+player.pos.x,y+player.pos.y,1,1); ctx.strokeStyle="white"; ctx.lineWidth=0.02; ctx.strokeRect(x+player.pos.x,y+player.pos.y,1,1);}}));
+            arena.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ctx.fillStyle=colors[v]; ctx.fillRect(x,y,1,1);ctx.strokeStyle="white";ctx.lineWidth=0.02;ctx.strokeRect(x,y,1,1);}}));
+            player.matrix.forEach((r,y)=>r.forEach((v,x)=>{ if(v){ctx.fillStyle=colors[v]; ctx.fillRect(x+player.pos.x,y+player.pos.y,1,1);ctx.strokeStyle="white";ctx.lineWidth=0.02;ctx.strokeRect(x+player.pos.x,y+player.pos.y,1,1);}}));
         }
-
         let dropCounter=0;
-        function update(time=0) {
+        function update() {
             dropCounter += 16;
             if(dropCounter>800) { playerDrop(); dropCounter=0; }
             draw();
