@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | Arcade v16.6</title>
+    <title>Furkan Koruk | Arcade v16.7</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -15,7 +15,6 @@
         
         .wrapper { display: flex; align-items: center; justify-content: center; height: 100vh; width: 100%; }
         
-        /* ANA PANEL DÜZENİ */
         .main-container {
             display: flex; gap: 20px; width: 95%; max-width: 1100px; height: 650px;
         }
@@ -24,17 +23,44 @@
         .main-panel {
             flex: 3; background: var(--panel-bg); border: 2px solid var(--neon-blue);
             padding: 30px; border-radius: 20px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
-            position: relative; overflow-y: auto;
+            position: relative; overflow: hidden;
         }
 
-        /* SAĞ TARAF - VERSION PANELİ */
+        /* SAĞ TARAF - ANİMASYONLU YAN PANEL */
         .side-panel {
-            flex: 1; background: var(--panel-bg); border: 2px solid var(--neon-pink);
-            padding: 20px; border-radius: 20px; box-shadow: 0 0 20px rgba(255, 0, 255, 0.1);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px;
+            flex: 0.2; /* Başlangıçta dar */
+            min-width: 80px;
+            background: rgba(255, 0, 255, 0.05); 
+            border: 2px solid rgba(255, 0, 255, 0.3);
+            padding: 20px; border-radius: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 15px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Yaylanma efekti */
+            overflow: hidden;
+            cursor: pointer;
         }
 
-        .side-panel h3 { color: var(--neon-pink); font-family: 'Courier New', monospace; font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 10px; }
+        .side-panel:hover {
+            flex: 1; /* Mouse üstüne gelince genişle */
+            background: var(--panel-bg);
+            border-color: var(--neon-pink);
+            box-shadow: -10px 0 20px rgba(255, 0, 255, 0.2);
+        }
+
+        /* Yan panel içerikleri başlangıçta gizli/küçük */
+        .side-content {
+            opacity: 0; transform: translateX(20px); transition: 0.3s; width: 100%; text-align: center;
+        }
+        .side-panel:hover .side-content {
+            opacity: 1; transform: translateX(0);
+        }
+
+        /* Dikey yazı (Panel kapalıyken görünecek) */
+        .side-label {
+            writing-mode: vertical-rl; text-orientation: mixed;
+            color: var(--neon-pink); font-weight: bold; letter-spacing: 5px;
+            transition: 0.3s; margin-top: 20px;
+        }
+        .side-panel:hover .side-label { opacity: 0; display: none; }
 
         .exit-btn {
             position: absolute; top: 15px; right: 15px; padding: 8px 15px; font-size: 10px;
@@ -51,8 +77,8 @@
         }
         .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
 
-        .ver-btn { border-color: var(--neon-pink); color: var(--neon-pink); font-size: 0.75rem; }
-        .ver-btn:hover { background: var(--neon-pink); color: #fff; box-shadow: 0 0 15px var(--neon-pink); }
+        .ver-btn { border-color: var(--neon-pink); color: var(--neon-pink); font-size: 0.75rem; margin-top: 10px; }
+        .ver-btn:hover { background: var(--neon-pink); color: #fff; }
 
         #info-box {
             margin-top: 25px; padding: 15px; border: 1px dashed rgba(0, 243, 255, 0.2);
@@ -60,13 +86,11 @@
         }
         .info-header { color: var(--neon-pink); font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 10px; font-weight: bold; border-bottom: 1px solid rgba(255, 0, 255, 0.2); display: inline-block; }
         .info-item { margin-bottom: 6px; font-size: 0.8rem; color: #ccc; line-height: 1.4; font-family: 'Consolas', monospace; }
-        .info-item b { color: var(--neon-blue); }
 
         #game-area { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; position: relative; }
         canvas { border: 2px solid var(--neon-blue); background: #000; max-height: 450px; }
         
         #cry-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 500; border-radius: 18px; }
-        .cry-emoji { font-size: 80px; animation: sob 0.6s infinite alternate; }
     </style>
 </head>
 <body>
@@ -90,27 +114,32 @@
                 <div id="info-box">
                     <div class="info-header">> ARCADE_DASHBOARD.LOG</div>
                     <div class="info-item">◈ <b>SNAKE:</b> Robotik mavi mod.</div>
-                    <div class="info-item">◈ <b>PACMAN:</b> Tünel aktif (Portal geçişi).</div>
-                    <div class="info-item">◈ <b>TETRIS:</b> Kararlı motor, hatasız oyun.</div>
-                    <div class="info-item">◈ <b>VERSION:</b> Sağ panelden ışık modunu seçin.</div>
+                    <div class="info-item">◈ <b>PACMAN:</b> Portal geçişi aktif.</div>
+                    <div class="info-item">◈ <b>SETTINGS:</b> Sağdaki paneli genişletin.</div>
                 </div>
             </div>
 
             <div id="game-area">
-                <div id="cry-screen"><div class="cry-emoji">😭</div><h2 style="color:var(--neon-red); margin-top:10px;">GAME OVER</h2></div>
+                <div id="cry-screen"><div style="font-size: 80px;">😭</div><h2 style="color:var(--neon-red); margin-top:10px;">GAME OVER</h2></div>
                 <div id="score-display" style="color:var(--neon-blue); margin-bottom:10px; font-weight:bold; font-family: monospace;">SCORE: 0</div>
                 <canvas id="stage"></canvas>
             </div>
         </div>
 
         <div id="right-panel" class="side-panel">
-            <h3>SYSTEM CORE</h3>
-            <div id="ver-status" style="font-size: 0.6rem; color: var(--neon-green); margin-bottom: 10px; font-family: monospace;">STATUS: ONLINE</div>
-            <button class="btn ver-btn" onclick="applyVersion('1.1')">v1.1 DARK</button>
-            <button class="btn ver-btn" onclick="applyVersion('1.2')">v1.2 STABLE</button>
-            <button class="btn ver-btn" onclick="applyVersion('1.5')">v1.5 BRIGHT</button>
-            <div style="margin-top: 20px; font-size: 0.6rem; color: #555; text-align: center; font-family: monospace;">
-                F.K. ARCADE SYSTEM<br>BUILD 2026.02
+            <div class="side-label">SYSTEM CORE</div>
+            
+            <div class="side-content">
+                <h3 style="color: var(--neon-pink); font-size: 1rem; margin-bottom: 20px;">CORE SETTINGS</h3>
+                <div id="ver-status" style="font-size: 0.6rem; color: var(--neon-green); margin-bottom: 20px; font-family: monospace;">STATUS: ONLINE</div>
+                
+                <button class="btn ver-btn" onclick="applyVersion('1.1')">v1.1 DARK</button>
+                <button class="btn ver-btn" onclick="applyVersion('1.2')">v1.2 STABLE</button>
+                <button class="btn ver-btn" onclick="applyVersion('1.5')">v1.5 BRIGHT</button>
+                
+                <div style="margin-top: 40px; font-size: 0.6rem; color: #555; font-family: monospace;">
+                    F.K. ARCADE SYSTEM<br>BUILD 2026.02
+                </div>
             </div>
         </div>
 
@@ -154,25 +183,7 @@
         setTimeout(() => { document.getElementById('cry-screen').style.display = 'none'; restart(); }, 2000);
     }
 
-    // PACMAN (PORTAL)
-    function initPacman() {
-        resetToMenu(); document.getElementById('menu-ui').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
-        canvas.width = 400; canvas.height = 400;
-        let pScore=0, wave=1, bullets=[], px=200, py=200, pd=0, lastS=0;
-        let dots = Array.from({length: 10}, () => ({x:Math.random()*380, y:Math.random()*380}));
-        let ghosts = [{x:50, y:50, speed:1.5, type:'chaser'}];
-        document.onkeydown = e => { if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2; if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4; };
-        gameInterval = setInterval(() => {
-            ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
-            if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
-            if(px < 0) px = 400; if(px > 400) px = 0; if(py < 0) py = 400; if(py > 400) py = 0;
-            dots.forEach((d,i) => { ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill(); if(Math.hypot(px-d.x, py-d.y) < 20) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-display').innerText = "SCORE: " + pScore; } });
-            ghosts.forEach(g => { g.x += (px > g.x ? g.speed : -g.speed); g.y += (py > g.y ? g.speed : -g.speed); ctx.fillStyle="red"; ctx.fillRect(g.x-10, g.y-10, 20, 20); if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman); });
-            ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
-        }, 30);
-    }
-
-    // SNAKE
+    // OYUNLAR (SADECE GÖRÜNÜM KONTROLLERİ GÜNCELLENDİ)
     function initSnake() {
         resetToMenu(); document.getElementById('menu-ui').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
         canvas.width=400; canvas.height=400; let sS=0, box=20, d="RIGHT", snake=[{x:9*box, y:10*box}], food={x:40, y:40};
@@ -180,7 +191,20 @@
         gameInterval=setInterval(()=>{ ctx.fillStyle="#000b1a"; ctx.fillRect(0,0,400,400); let sX=snake[0].x, sY=snake[0].y; if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box; if(sX<0||sX>=400||sY<0||sY>=400||snake.some(t=>t.x==sX&&t.y==sY)){triggerGameOver(initSnake);return;} if(sX==food.x&&sY==food.y){food={x:Math.floor(Math.random()*19)*box, y:Math.floor(Math.random()*19)*box}; sS++; document.getElementById('score-display').innerText="SCORE: "+sS;}else{snake.pop();} snake.unshift({x:sX, y:sY}); snake.forEach((p,i)=>{ctx.fillStyle=i==0?"#00f3ff":"#005a66"; ctx.fillRect(p.x+2,p.y+2,box-4,box-4);}); ctx.fillStyle="#ff00ff"; ctx.fillRect(food.x+5,food.y+5,10,10); },100);
     }
 
-    // TETRIS
+    function initPacman() {
+        resetToMenu(); document.getElementById('menu-ui').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
+        canvas.width = 400; canvas.height = 400;
+        let pScore=0, px=200, py=200, pd=0; let dots = Array.from({length: 10}, () => ({x:Math.random()*380, y:Math.random()*380})); let ghosts = [{x:50, y:50, speed:1.5}];
+        document.onkeydown = e => { if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2; if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4; };
+        gameInterval = setInterval(() => {
+            ctx.fillStyle="black"; ctx.fillRect(0,0,400,400); if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
+            if(px < 0) px = 400; if(px > 400) px = 0; if(py < 0) py = 400; if(py > 400) py = 0;
+            dots.forEach((d,i) => { ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill(); if(Math.hypot(px-d.x, py-d.y) < 20) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-display').innerText = "SCORE: " + pScore; } });
+            ghosts.forEach(g => { g.x += (px > g.x ? g.speed : -g.speed); g.y += (py > g.y ? g.speed : -g.speed); ctx.fillStyle="red"; ctx.fillRect(g.x-10, g.y-10, 20, 20); if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman); });
+            ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
+        }, 30);
+    }
+
     function initTetris() {
         resetToMenu(); document.getElementById('menu-ui').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
         canvas.width=240; canvas.height=400; let tS=0; const c=[null,'#00f3ff','#ff00ff','#39ff14','#ff0033','#ff8800','#ffff00','#9d00ff'];
