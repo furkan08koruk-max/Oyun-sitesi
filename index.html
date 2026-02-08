@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | Arcade v16.3</title>
+    <title>Furkan Koruk | Arcade v16.4</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -30,6 +30,7 @@
             transition: 0.3s;
         }
         .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
+        
         #info-box {
             margin-top: 30px; padding: 20px; border: 1px dashed rgba(0, 243, 255, 0.2);
             background: rgba(0, 243, 255, 0.03); border-radius: 10px; text-align: left; 
@@ -38,10 +39,12 @@
         .info-item { margin-bottom: 12px; font-size: 0.9rem; color: #e0e0e0; line-height: 1.6; font-family: 'Consolas', monospace; }
         .info-item b { color: var(--neon-blue); }
         .info-item span { color: var(--neon-green); font-weight: bold; }
-        #game-area { display: none; flex-direction: column; align-items: center; position: relative; }
+
+        #game-area, #version-menu { display: none; flex-direction: column; align-items: center; position: relative; }
         canvas { border: 2px solid var(--neon-blue); background: #000; box-shadow: 0 0 20px rgba(0, 243, 255, 0.2); }
         #cry-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 500; }
         .cry-emoji { font-size: 100px; animation: sob 0.6s infinite alternate; }
+        @keyframes sob { from { transform: scale(1); } to { transform: scale(1.1); } }
     </style>
 </head>
 <body>
@@ -60,11 +63,18 @@
             <button class="btn" onclick="showVersions()" style="border-color:var(--neon-pink);color:var(--neon-pink)">📁 VERSION</button>
 
             <div id="info-box">
-                <div class="info-header">> STABILITY_PATCH_16.3.EXE</div>
-                <div class="info-item">◈ <b>SNAKE:</b> Robotik mavi gövde aktif. <span>+1 PUAN</span>.</div>
-                <div class="info-item">◈ <b>PACMAN:</b> Sniper botlar 100 puanda aktifleşir. <span>+10 PUAN</span>.</div>
-                <div class="info-item">◈ <b>TETRIS:</b> <b>↑ OK</b> ile döndür. Satır patlatma <span>+100 PUAN</span>. Buglar temizlendi.</div>
+                <div class="info-header">> SYSTEM_REPORT_16.4.EXE</div>
+                <div class="info-item">◈ <b>SNAKE:</b> Robotik mavi mod aktif. <span>+1 PUAN</span>.</div>
+                <div class="info-item">◈ <b>PACMAN:</b> 100 puanda Sniper botlar gelir. <span>+10 PUAN</span>.</div>
+                <div class="info-item">◈ <b>TETRIS:</b> <b>↑ OK</b> ile döndür. Buglar temizlendi. <span>+100 PUAN</span>.</div>
             </div>
+        </div>
+
+        <div id="version-menu">
+            <h2 id="ver-status" style="color:var(--neon-pink); margin-bottom:20px; letter-spacing: 5px;">SYSTEM BRIGHTNESS</h2>
+            <div class="btn" onclick="applyVersion('1.1')">v1.1 (DARK)</div>
+            <div class="btn" onclick="applyVersion('1.2')">v1.2 (STABLE)</div>
+            <div class="btn" onclick="applyVersion('1.5')">v1.5 (BRIGHT)</div>
         </div>
 
         <div id="game-area">
@@ -95,9 +105,28 @@
         activeLoop = null; gameInterval = null;
         document.getElementById('menu-content').style.display = 'block';
         document.getElementById('game-area').style.display = 'none';
+        document.getElementById('version-menu').style.display = 'none';
         document.getElementById('global-exit').style.display = 'none';
         document.getElementById('score-display').innerText = "SCORE: 0";
         document.onkeydown = null;
+    }
+
+    function showVersions() {
+        document.getElementById('menu-content').style.display = 'none';
+        document.getElementById('version-menu').style.display = 'flex';
+        document.getElementById('global-exit').style.display = 'block';
+    }
+
+    function applyVersion(ver) {
+        const status = document.getElementById('ver-status');
+        status.innerText = "LOADING v" + ver + "...";
+        setTimeout(() => {
+            status.innerText = "ACCEPTED";
+            if(ver === '1.1') mC.style.opacity = "0"; 
+            if(ver === '1.2') mC.style.opacity = "0.4"; 
+            if(ver === '1.5') mC.style.opacity = "1";
+            setTimeout(resetToMenu, 800);
+        }, 1000);
     }
 
     function triggerGameOver(restartFunc) {
@@ -107,85 +136,7 @@
         setTimeout(() => { document.getElementById('cry-screen').style.display = 'none'; restartFunc(); }, 2000);
     }
 
-    // --- TETRIS (STABLE) ---
-    function initTetris() {
-        resetToMenu();
-        document.getElementById('menu-content').style.display = 'none';
-        document.getElementById('game-area').style.display = 'flex';
-        document.getElementById('global-exit').style.display = 'block';
-        canvas.width = 240; canvas.height = 400;
-        
-        let tScore = 0;
-        const colors = [null, '#00f3ff', '#ff00ff', '#39ff14', '#ff0033', '#ff8800', '#ffff00', '#9d00ff'];
-        const shapes = [ [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], [[0,2,0],[0,2,0],[0,2,2]], [[0,3,0],[0,3,0],[3,3,0]], [[4,4],[4,4]], [[0,5,0],[5,5,5],[0,0,0]], [[0,6,6],[6,6,0],[0,0,0]], [[7,7,0],[0,7,7],[0,0,0]] ];
-        const arena = Array.from({length: 20}, () => Array(12).fill(0));
-        let player = { pos: {x: 4, y: 0}, matrix: shapes[Math.floor(Math.random()*shapes.length)] };
-
-        function rotate(matrix) { for(let y=0; y<matrix.length; ++y) { for(let x=0; x<y; ++x) { [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]]; } } matrix.forEach(row => row.reverse()); }
-        
-        function collide(p, a) {
-            const [m, o] = [p.matrix, p.pos];
-            for(let y=0; y<m.length; ++y) {
-                for(let x=0; x<m[y].length; ++x) {
-                    if(m[y][x] !== 0 && (a[y+o.y] && a[y+o.y][x+o.x]) !== 0) return true;
-                }
-            }
-            return false;
-        }
-
-        function merge(a, p) { p.matrix.forEach((row, y) => { row.forEach((value, x) => { if(value !== 0) a[y + p.pos.y][x + p.pos.x] = value; }); }); }
-
-        function playerDrop() {
-            player.pos.y++;
-            if (collide(player, arena)) {
-                player.pos.y--;
-                merge(arena, player);
-                // Yeni parça üret
-                player.pos.y = 0;
-                player.pos.x = 4;
-                player.matrix = shapes[Math.floor(Math.random()*shapes.length)];
-                // Eğer yeni parça çıktığı an çarpıyorsa GAME OVER
-                if (collide(player, arena)) { triggerGameOver(initTetris); return; }
-                
-                // Satır silme ve skor
-                outer: for(let y=arena.length-1; y>0; y--) {
-                    for(let x=0; x<arena[y].length; x++) if(arena[y][x]===0) continue outer;
-                    const row = arena.splice(y, 1)[0].fill(0);
-                    arena.unshift(row);
-                    tScore += 100;
-                    document.getElementById('score-display').innerText = "SCORE: " + tScore;
-                    y++;
-                }
-            }
-        }
-
-        document.onkeydown = e => {
-            if(e.keyCode==37) { player.pos.x--; if(collide(player, arena)) player.pos.x++; }
-            if(e.keyCode==39) { player.pos.x++; if(collide(player, arena)) player.pos.x--; }
-            if(e.keyCode==40) { playerDrop(); }
-            if(e.keyCode==38) {
-                const pre = player.matrix.map(row => [...row]);
-                rotate(player.matrix);
-                if(collide(player, arena)) player.matrix = pre;
-            }
-        };
-
-        function draw() {
-            ctx.fillStyle = '#000'; ctx.fillRect(0,0,canvas.width,canvas.height);
-            ctx.save(); ctx.scale(20, 20);
-            // Arena çizimi
-            arena.forEach((row, y) => { row.forEach((val, x) => { if(val){ ctx.fillStyle=colors[val]; ctx.fillRect(x,y,1,1); ctx.strokeStyle="rgba(255,255,255,0.1)"; ctx.lineWidth=0.05; ctx.strokeRect(x,y,1,1); } }); });
-            // Oyuncu çizimi
-            player.matrix.forEach((row, y) => { row.forEach((val, x) => { if(val){ ctx.fillStyle=colors[val]; ctx.fillRect(x+player.pos.x, y+player.pos.y, 1, 1); ctx.strokeStyle="white"; ctx.lineWidth=0.05; ctx.strokeRect(x+player.pos.x, y+player.pos.y, 1, 1); } }); });
-            ctx.restore();
-            activeLoop = requestAnimationFrame(draw);
-        }
-
-        gameInterval = setInterval(playerDrop, 800);
-        draw();
-    }
-
-    // --- CYBER SNAKE & PACMAN (Aynı stabil mantık) ---
+    // --- GAMES (Snake, Pacman, Tetris) ---
     function initSnake() {
         resetToMenu(); document.getElementById('menu-content').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('global-exit').style.display='block';
         canvas.width = 400; canvas.height = 400;
@@ -219,6 +170,23 @@
             bullets.forEach(b => { b.x += b.vx; b.y += b.vy; ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(b.x,b.y,3,0,7); ctx.fill(); if(Math.hypot(px-b.x, py-b.y) < 15) triggerGameOver(initPacman); });
             ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
+    }
+
+    function initTetris() {
+        resetToMenu(); document.getElementById('menu-content').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('global-exit').style.display='block';
+        canvas.width = 240; canvas.height = 400;
+        let tScore = 0;
+        const colors = [null, '#00f3ff', '#ff00ff', '#39ff14', '#ff0033', '#ff8800', '#ffff00', '#9d00ff'];
+        const shapes = [ [[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]], [[0,2,0],[0,2,0],[0,2,2]], [[0,3,0],[0,3,0],[3,3,0]], [[4,4],[4,4]], [[0,5,0],[5,5,5],[0,0,0]], [[0,6,6],[6,6,0],[0,0,0]], [[7,7,0],[0,7,7],[0,0,0]] ];
+        const arena = Array.from({length: 20}, () => Array(12).fill(0));
+        let player = { pos: {x: 4, y: 0}, matrix: shapes[Math.floor(Math.random()*shapes.length)] };
+        function rotate(matrix) { for(let y=0; y<matrix.length; ++y) { for(let x=0; x<y; ++x) { [matrix[x][y], matrix[y][x]] = [matrix[y][x], matrix[x][y]]; } } matrix.forEach(row => row.reverse()); }
+        function collide(p, a) { const [m, o] = [p.matrix, p.pos]; for(let y=0; y<m.length; ++y) { for(let x=0; x<m[y].length; ++x) { if(m[y][x] !== 0 && (a[y+o.y] && a[y+o.y][x+o.x]) !== 0) return true; } } return false; }
+        function merge(a, p) { p.matrix.forEach((row, y) => { row.forEach((value, x) => { if(value !== 0) a[y + p.pos.y][x + p.pos.x] = value; }); }); }
+        function playerDrop() { player.pos.y++; if (collide(player, arena)) { player.pos.y--; merge(arena, player); player.pos.y = 0; player.pos.x = 4; player.matrix = shapes[Math.floor(Math.random()*shapes.length)]; if (collide(player, arena)) { triggerGameOver(initTetris); return; } outer: for(let y=arena.length-1; y>0; y--) { for(let x=0; x<arena[y].length; x++) if(arena[y][x]===0) continue outer; arena.splice(y, 1); arena.unshift(new Array(12).fill(0)); tScore += 100; document.getElementById('score-display').innerText = "SCORE: " + tScore; y++; } } }
+        document.onkeydown = e => { if(e.keyCode==37) { player.pos.x--; if(collide(player, arena)) player.pos.x++; } if(e.keyCode==39) { player.pos.x++; if(collide(player, arena)) player.pos.x--; } if(e.keyCode==40) { playerDrop(); } if(e.keyCode==38) { const pre = player.matrix.map(row => [...row]); rotate(player.matrix); if(collide(player, arena)) player.matrix = pre; } };
+        function draw() { ctx.fillStyle = '#000'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.save(); ctx.scale(20, 20); arena.forEach((row, y) => { row.forEach((val, x) => { if(val){ ctx.fillStyle=colors[val]; ctx.fillRect(x,y,1,1); } }); }); player.matrix.forEach((row, y) => { row.forEach((val, x) => { if(val){ ctx.fillStyle=colors[val]; ctx.fillRect(x+player.pos.x, y+player.pos.y, 1, 1); ctx.strokeStyle="white"; ctx.lineWidth=0.05; ctx.strokeRect(x+player.pos.x, y+player.pos.y, 1, 1); } }); }); ctx.restore(); activeLoop = requestAnimationFrame(draw); }
+        gameInterval = setInterval(playerDrop, 800); draw();
     }
 </script>
 </body>
