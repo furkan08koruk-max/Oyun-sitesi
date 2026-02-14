@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | v17.4 + v17.3 Games</title>
+    <title>Furkan Koruk | v17.5 Bilişim Temelleri</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -23,7 +23,7 @@
             position: relative; text-align: center; overflow: hidden; transition: all 0.5s;
         }
 
-        /* YAN PANEL (VERSIONS) */
+        /* YAN PANEL */
         .side-panel {
             flex: 0.15; min-width: 70px; background: rgba(255, 0, 255, 0.05); 
             border: 2px solid rgba(255, 0, 255, 0.3); padding: 20px; border-radius: 20px;
@@ -37,19 +37,9 @@
         .side-panel:hover .side-content { opacity: 1; transform: translateX(0); display: flex; }
 
         /* KİTAP MODU */
-        .study-mode-active {
-            background: #ffffff !important;
-            border-color: #d1d1d1 !important;
-            color: #222 !important;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important;
-        }
+        .study-mode-active { background: #ffffff !important; border-color: #d1d1d1 !important; color: #222 !important; box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important; }
 
-        .menu-page {
-            position: absolute; width: 90%; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 1; pointer-events: all;
-        }
+        .menu-page { position: absolute; width: 90%; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); opacity: 1; pointer-events: all; }
         .hidden-left { opacity: 0; transform: translate(-150%, -50%); pointer-events: none; }
         .hidden-right { opacity: 0; transform: translate(50%, -50%); pointer-events: none; }
 
@@ -59,15 +49,10 @@
         .btn { background: transparent; border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 12px 25px; cursor: pointer; text-transform: uppercase; font-weight: 900; margin: 10px; display: block; transition: 0.3s; width: 280px; margin-left: auto; margin-right: auto; }
         .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
         .folder-btn { border-color: var(--neon-green); color: var(--neon-green); }
-        
         .study-mode-active .btn { border: 1px solid #ccc; color: #333; font-weight: 600; background: #f9f9f9; }
 
-        /* KİTAP İÇERİK */
-        .book-container {
-            text-align: left; max-width: 800px; margin: 0 auto; padding: 20px;
-            height: 480px; overflow-y: scroll; border-radius: 10px;
-            scrollbar-width: thin; scrollbar-color: #ddd transparent;
-        }
+        /* BİLİŞİM KİTABI İÇERİK TASARIMI */
+        .book-container { text-align: left; max-width: 800px; margin: 0 auto; padding: 20px; height: 480px; overflow-y: scroll; border-radius: 10px; scrollbar-width: thin; scrollbar-color: #ddd transparent; }
         .chapter { margin-bottom: 50px; padding-bottom: 25px; border-bottom: 2px solid #f0f0f0; }
         .chapter-title { font-size: 1.8rem; color: #000; margin-bottom: 15px; border-left: 6px solid #1a73e8; padding-left: 15px; font-weight: 800; }
         .topic-title { font-size: 1.2rem; color: #1a73e8; margin: 20px 0 10px 0; font-weight: 700; }
@@ -96,7 +81,7 @@
             </div>
 
             <div id="games-page" class="menu-page hidden-right">
-                <h2 style="color: var(--neon-blue); margin-bottom: 20px;">OYUNLAR (v17.3 ENGINE)</h2>
+                <h2 style="color: var(--neon-blue); margin-bottom: 20px;">OYUNLAR (v17.3 SABİT)</h2>
                 <button class="btn" onclick="initSnake()">🐍 CYBER SNAKE</button>
                 <button class="btn" onclick="initPacman()">🟡 SNIPER PACMAN</button>
                 <button class="btn" onclick="initTetris()">🧱 RGB TETRIS</button>
@@ -105,17 +90,54 @@
 
             <div id="study-page" class="menu-page hidden-right">
                 <div class="book-container">
+                    
                     <div class="chapter">
-                        <h1 class="chapter-title">Bölüm 1: Programlama Temelleri</h1>
-                        <p class="text">Programlama, bir bilgisayara belirli bir görevi yerine getirmesi için verilen talimatlar bütünüdür. Python, öğrenmesi en kolay dildir.</p>
-                        <h2 class="topic-title">1.1 Değişkenler</h2>
-                        <span class="code-snippet">ad = "Furkan" | yas = 17 | aktif = True</span>
+                        <h1 class="chapter-title">Bilişim Teknolojilerinin Temelleri</h1>
+                        <p class="text">Bu bölüm, dijital dünyanın nasıl çalıştığını ve temel yapı taşlarını anlamanıza yardımcı olacak temel bilgileri içerir.</p>
+                        
+                        <h2 class="topic-title">1. Bilgisayar Parçaları (Donanım)</h2>
+                        <p class="text">Bilgisayarın fiziksel olarak dokunabildiğimiz tüm bileşenlerine donanım denir. Temel parçalar şunlardır:</p>
+                        <p class="text">
+                            • <b>Anakart:</b> Diğer tüm parçaların üzerine takıldığı ve iletişimi sağlayan merkezdir.<br>
+                            • <b>İşlemci (CPU):</b> Bilgisayarın beynidir, saniyede milyarlarca işlem yapar.<br>
+                            • <b>RAM Bellek:</b> Bilgisayarın "kısa süreli hafızası"dır. Programlar burada çalışır.<br>
+                            • <b>Ekran Kartı (GPU):</b> Görüntüleri işler, özellikle oyun ve grafik tasarım için kritiktir.<br>
+                            • <b>Güç Kaynağı (PSU):</b> Şehir elektriğini parçaların kullanabileceği voltaja dönüştürür.
+                        </p>
                     </div>
+
                     <div class="chapter">
-                        <h1 class="chapter-title">Bölüm 2: Bilgisayar Donanımı</h1>
-                        <p class="text">Donanım fiziksel parçalardır. CPU beyni, RAM geçici belleğidir.</p>
-                        <div class="info-note">Depolama birimleri Byte ile ölçülür.</div>
+                        <h1 class="chapter-title">Kodlama ve Algoritma</h1>
+                        <h2 class="topic-title">Algoritma Nedir?</h2>
+                        <p class="text">Bir problemleri çözmek veya bir hedefe ulaşmak için tasarlanan mantıksal yola algoritma denir. Bilgisayara "çay yap" demeyiz, ona sırasıyla "suyu koy", "ocağı aç", "kaynayınca demliğe boşalt" deriz.</p>
+                        
+                        <div class="info-note">
+                            <b>Unutma:</b> Bilgisayarlar çok hızlıdır ama pek zeki değillerdir. Onlara her adımı en açık haliyle söylemelisiniz.
+                        </div>
                     </div>
+
+                    <div class="chapter">
+                        <h1 class="chapter-title">Python Temel Bilgiler</h1>
+                        <p class="text">Python, günümüzde yapay zekadan veri analizine kadar her alanda kullanılan, yazımı en basit dillerden biridir.</p>
+                        
+                        <h2 class="topic-title">Veri Tipleri ve Atama</h2>
+                        <span class="code-snippet"># Bir değişkene değer atama
+isim = "Furkan"   # String (Metin)
+numara = 101       # Integer (Tam Sayı)
+ortalama = 95.5    # Float (Ondalık Sayı)</span>
+
+                        <h2 class="topic-title">Ekrana Yazdırma ve Girdi Alma</h2>
+                        <span class="code-snippet">print("Merhaba Dunya")
+kullanici_adi = input("Adinizi girin: ")</span>
+
+                        <h2 class="topic-title">Python'da Mantık Kurma</h2>
+                        <p class="text">Eğer bir durum gerçekleşirse belirli bir kodu çalıştırmak için 'if' yapısını kullanırız.</p>
+                        <span class="code-snippet">if ortalama > 50:
+    print("Dersi gectiniz!")
+else:
+    print("Kaldiniz.")</span>
+                    </div>
+
                 </div>
                 <div class="back-btn" onclick="closeFolder()">[ Menüye Dön ]</div>
             </div>
@@ -201,7 +223,7 @@
         document.getElementById('score-display').innerText = "SCORE: 0";
     }
 
-    // --- v17.3 SNAKE ---
+    /* OYUNLAR (SABİT - v17.3 ENGINE) */
     function initSnake() {
         prepareGame();
         let sS = 0; canvas.width=400; canvas.height=400; let box=20, d="RIGHT", snake=[{x:9*box, y:10*box}], food={x:40, y:40};
@@ -209,7 +231,6 @@
         gameInterval=setInterval(()=>{ ctx.fillStyle="#000b1a"; ctx.fillRect(0,0,400,400); let sX=snake[0].x, sY=snake[0].y; if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box; if(sX<0||sX>=400||sY<0||sY>=400||snake.some(t=>t.x==sX&&t.y==sY)){triggerGameOver(initSnake);return;} if(sX==food.x&&sY==food.y){food={x:Math.floor(Math.random()*19)*box, y:Math.floor(Math.random()*19)*box}; sS++; document.getElementById('score-display').innerText="SCORE: "+sS;}else{snake.pop();} snake.unshift({x:sX, y:sY}); snake.forEach((p,i)=>{ctx.fillStyle=i==0?"#00f3ff":"#005a66"; ctx.fillRect(p.x+2,p.y+2,box-4,box-4);}); ctx.fillStyle="#ff00ff"; ctx.fillRect(food.x+5,food.y+5,10,10); },100);
     }
 
-    // --- v17.3 SNIPER PACMAN ---
     function initPacman() {
         prepareGame();
         let pScore = 0; canvas.width = 400; canvas.height = 400;
@@ -222,28 +243,18 @@
             ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
             if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
             if(px < 0) px = 400; if(px > 400) px = 0; if(py < 0) py = 400; if(py > 400) py = 0;
-            if(pScore >= 100 && !ghosts.find(g => g.type === 'sniper')) ghosts.push({x:350, y:350, speed:1.2, type:'sniper'});
             dots.forEach((d,i) => { ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill(); if(Math.hypot(px-d.x, py-d.y) < 20) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-display').innerText = "SCORE: " + pScore; } });
             ghosts.forEach(g => {
                 g.x += (px > g.x ? g.speed : -g.speed); g.y += (py > g.y ? g.speed : -g.speed);
                 ctx.fillStyle = (g.type === 'sniper' ? "yellow" : "red"); ctx.fillRect(g.x-10, g.y-10, 20, 20);
-                if(g.type === 'sniper' && Date.now() - lastShot > 2000) {
-                    let angle = Math.atan2(py-g.y, px-g.x);
-                    bullets.push({x: g.x, y: g.y, vx: Math.cos(angle)*5, vy: Math.sin(angle)*5});
-                    lastShot = Date.now();
-                }
+                if(g.type === 'sniper' && Date.now() - lastShot > 2000) { let angle = Math.atan2(py-g.y, px-g.x); bullets.push({x: g.x, y: g.y, vx: Math.cos(angle)*5, vy: Math.sin(angle)*5}); lastShot = Date.now(); }
                 if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman);
             });
-            bullets.forEach((b, i) => {
-                b.x += b.vx; b.y += b.vy; ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, 7); ctx.fill();
-                if(Math.hypot(px-b.x, py-b.y) < 15) triggerGameOver(initPacman);
-                if(b.x < 0 || b.x > 400 || b.y < 0 || b.y > 400) bullets.splice(i, 1);
-            });
+            bullets.forEach((b, i) => { b.x += b.vx; b.y += b.vy; ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, 7); ctx.fill(); if(Math.hypot(px-b.x, py-b.y) < 15) triggerGameOver(initPacman); });
             ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
     }
 
-    // --- v17.3 RGB TETRIS ---
     function initTetris() {
         prepareGame();
         let tS = 0; canvas.width=240; canvas.height=400; const c=[null,'#00f3ff','#ff00ff','#39ff14','#ff0033','#ff8800','#ffff00','#9d00ff'];
