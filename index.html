@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | v18.0 Full Pack</title>
+    <title>Furkan Koruk | v18.5 Final Hub</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -12,29 +12,30 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden; height: 100vh; }
         
-        #matrix-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; width: 100%; height: 100%; }
+        #matrix-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.4; width: 100%; height: 100%; transition: 0.5s; }
         
         .wrapper { display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .main-container { display: flex; gap: 20px; width: 95%; max-width: 1250px; height: 680px; }
+        .main-container { display: flex; gap: 20px; width: 95%; max-width: 1250px; height: 650px; }
 
         .main-panel {
             flex: 3; background: var(--panel-bg); border: 2px solid var(--neon-blue);
             padding: 25px; border-radius: 20px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
-            position: relative; text-align: center; overflow: hidden;
+            position: relative; text-align: center; overflow: hidden; transition: 0.5s;
         }
 
-        /* YAN PANEL */
+        /* YAN PANEL (VERSIONS) */
         .side-panel {
-            flex: 0.15; min-width: 70px; background: rgba(255, 0, 255, 0.05); border: 2px solid rgba(255, 0, 255, 0.3);
-            padding: 20px; border-radius: 20px; display: flex; flex-direction: column; align-items: center; transition: 0.5s; cursor: pointer;
+            flex: 0.15; min-width: 70px; background: rgba(255, 0, 255, 0.05); 
+            border: 2px solid rgba(255, 0, 255, 0.3); padding: 20px; border-radius: 20px;
+            display: flex; flex-direction: column; align-items: center; transition: 0.5s; cursor: pointer;
         }
-        .side-panel:hover { flex: 0.5; background: var(--panel-bg); }
+        .side-panel:hover { flex: 0.5; background: var(--panel-bg); border-color: var(--neon-pink); }
         .side-label { writing-mode: vertical-rl; color: var(--neon-pink); font-weight: bold; letter-spacing: 5px; margin-top: 20px; }
         .side-panel:hover .side-label { display: none; }
         .side-content { opacity: 0; display: none; flex-direction: column; gap: 10px; width: 100%; }
         .side-panel:hover .side-content { opacity: 1; display: flex; }
 
-        /* ODAKLANMA MODU */
+        /* ODAKLANMA / DERS MODU */
         .study-mode-active { background: #ffffff !important; color: #222 !important; border-color: #ddd !important; }
         
         .menu-page { position: absolute; width: 90%; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: 0.5s; }
@@ -45,21 +46,20 @@
         .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
         .study-mode-active .btn { border: 1px solid #333; color: #333; background: #fff; }
 
-        /* DERS KİTABI İÇERİĞİ */
+        /* BİLİŞİM KİTABI TASARIMI */
         .book-container { 
-            text-align: left; height: 450px; overflow-y: auto; padding: 25px; 
+            text-align: left; height: 420px; overflow-y: auto; padding: 20px; 
             background: #fdfdfd; border-radius: 10px; border: 1px solid #ddd; color: #333; line-height: 1.6;
         }
-        .book-section { margin-bottom: 35px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
-        .book-title { font-size: 1.5rem; font-weight: 800; color: #1565c0; margin-bottom: 10px; }
-        .code-snippet { background: #1e1e1e; color: #dcdcdc; padding: 12px; border-radius: 5px; font-family: 'Consolas', monospace; margin: 10px 0; font-size: 0.85rem; border-left: 4px solid var(--neon-green); }
-        .important-box { background: #fff3e0; border-left: 5px solid #ff9800; padding: 12px; margin: 10px 0; font-size: 0.9rem; }
-        .highlight { color: #c62828; font-weight: bold; }
+        .book-section { margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .book-title { font-size: 1.4rem; font-weight: 800; color: #1a73e8; margin-bottom: 10px; }
+        .code-snippet { background: #1e1e1e; color: #dcdcdc; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0; font-size: 0.85rem; border-left: 4px solid var(--neon-green); }
+        .important-box { background: #fff9c4; border-left: 5px solid #fbc02d; padding: 10px; margin: 10px 0; font-size: 0.9rem; }
 
-        /* OYUN ALANI */
-        #game-area { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; width: 100%; }
+        /* OYUN SAHASI */
+        #game-area { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; }
         canvas#stage { border: 2px solid var(--neon-blue); background: #000; box-shadow: 0 0 20px var(--neon-blue); }
-        .back-btn { font-weight: bold; cursor: pointer; margin-top: 15px; display: inline-block; color: var(--neon-pink); }
+        .back-btn { font-weight: bold; cursor: pointer; margin-top: 15px; color: var(--neon-pink); }
     </style>
 </head>
 <body>
@@ -69,71 +69,59 @@
 <div class="wrapper">
     <div class="main-container">
         <div id="main-ui" class="main-panel">
-            <button id="global-exit" style="position: absolute; top: 15px; right: 15px; padding: 8px 15px; font-size: 10px; border: 1px solid #ccc; background: #000; color: #fff; cursor: pointer; z-index: 1000; display: none;" onclick="resetToMenu()">✖ KAPAT</button>
+            <button id="global-exit" style="position: absolute; top: 15px; right: 15px; padding: 8px 15px; border: 1px solid #ccc; background: #000; color: #fff; cursor: pointer; z-index: 1000; display: none;" onclick="resetToMenu()">✖ KAPAT</button>
 
             <div id="home-page" class="menu-page">
                 <h1 style="font-size: 2.2rem; text-shadow: 0 0 20px var(--neon-blue); margin-bottom: 30px; letter-spacing: 6px;">FURKAN KORUK</h1>
-                <button class="btn" style="border-color:var(--neon-green); color:var(--neon-green);" onclick="openFolder('games-page')">🎮 OYUNLARI AÇ</button>
-                <button class="btn" onclick="openStudy()">💻 BİLİŞİM KİTABI (GENİŞ)</button>
+                <button class="btn" style="border-color:var(--neon-green); color:var(--neon-green);" onclick="openFolder('games-page')">🎮 OYUNLAR</button>
+                <button class="btn" onclick="openStudy()">💻 BİLİŞİM KİTABI</button>
             </div>
 
             <div id="games-page" class="menu-page hidden-right">
                 <h2 style="color: var(--neon-blue); margin-bottom: 20px;">OYUN SEÇ</h2>
                 <button class="btn" onclick="initSnake()">🐍 CYBER SNAKE</button>
+                <button class="btn" onclick="initPacman()">🟡 PACMAN CLASSIC</button>
                 <button class="btn" onclick="initTetris()">🧱 TETRIS RGB</button>
                 <div class="back-btn" onclick="closeFolder('games-page')">[ Geri Dön ]</div>
             </div>
 
             <div id="study-page" class="menu-page hidden">
-                <h2 style="margin-bottom: 10px;">🚀 Profesyonel Bilişim Notları</h2>
+                <h2 style="margin-bottom: 10px;">📖 Bilişim & Yazılım Notları</h2>
                 <div class="book-container">
-                    
                     <div class="book-section">
-                        <div class="book-title">🐍 Python Master Guide</div>
-                        <p><b>1. Veri Yapıları:</b> Python'da listeler <span class="highlight">[ ]</span>, sözlükler (dict) <span class="highlight">{ }</span> anahtar-değer çiftiyle çalışır.</p>
-                        <div class="code-snippet">ogrenci = {"ad": "Furkan", "no": 123}<br>print(ogrenci["ad"]) # Çıktı: Furkan</div>
-                        <p><b>2. Döngüler ve Karar:</b> <i>range(start, stop, step)</i> fonksiyonu döngülerde çok kritiktir.</p>
-                        <div class="code-snippet">for i in range(1, 10, 2): # 1'den başla, 2'şer art<br>&nbsp;&nbsp;&nbsp;&nbsp;print(i)</div>
-                        <div class="important-box">📌 <b>İPUCU:</b> Python'da bir dosyayı okumak için 'with open()' kullanmak en güvenli yoldur, dosyayı otomatik kapatır.</div>
+                        <div class="book-title">🐍 Python Detaylı Notlar</div>
+                        <p>Python'da <b>Döngüler</b> ve <b>Veri Yapıları</b> en kritik konulardır.</p>
+                        <div class="code-snippet"># Sözlük (Dictionary) yapısı<br>veriler = {"ad": "Furkan", "dil": "Python"}<br># For Döngüsü<br>for key, val in veriler.items():<br>&nbsp;&nbsp;&nbsp;&nbsp;print(key, val)</div>
+                        <div class="important-box">💡 <b>NOT:</b> Python'da 'range(5)' ifadesi 0,1,2,3,4 değerlerini üretir. 5 dahil değildir!</div>
                     </div>
-
                     <div class="book-section">
-                        <div class="book-title">🏢 C# Enterprise Guide</div>
-                        <p><b>1. Sınıf ve Nesne:</b> C# tamamen Nesne Yönelimli (OOP) bir dildir. Her şey bir sınıfın içindedir.</p>
-                        <div class="code-snippet">public class Araba {<br>&nbsp;&nbsp;public string marka = "Tesla";<br>}</div>
-                        <p><b>2. Metotlar:</b> 'void' geri değer döndürmeyen metotlar için kullanılır. 'static' ise nesne oluşturmadan erişimi sağlar.</p>
-                        <div class="important-box">⚠️ <b>KRİTİK:</b> Access Modifiers (Erişim Belirleyiciler):<br>• <b>Public:</b> Her yerden erişim.<br>• <b>Private:</b> Sadece kendi sınıfından erişim.</div>
+                        <div class="book-title">🏢 C# Kurumsal Notlar</div>
+                        <p>C# dilinde <b>Değişken Tipleri</b> ve <b>Erişim Belirleyiciler</b> sınavda kesin çıkar.</p>
+                        <div class="code-snippet">public int sayi = 10; // Her yerden erişilir<br>private string sır = "Gizli"; // Sadece sınıftan</div>
+                        <div class="important-box">⚠️ <b>ÖNEMLİ:</b> C#'ta her kod bloğu süslü parantez { } içine alınmalı ve satırlar ; ile bitmelidir.</div>
                     </div>
-
-                    <div class="book-section">
-                        <div class="book-title">🗄️ Veritabanı (Bonus)</div>
-                        <p>Verileri çekmek için <span class="highlight">SELECT</span>, eklemek için <span class="highlight">INSERT</span> kullanılır.</p>
-                        <div class="code-snippet">SELECT * FROM Ogrenciler WHERE Ad = 'Furkan';</div>
-                    </div>
-
                 </div>
                 <div class="back-btn" onclick="closeStudy()">[ Menüye Dön ]</div>
             </div>
 
             <div id="game-area">
-                <div id="score-text" style="color:var(--neon-blue); margin-bottom:5px;">SCORE: 0</div>
+                <div id="score-text" style="color:var(--neon-blue); font-weight:bold; margin-bottom:10px;">SCORE: 0</div>
                 <canvas id="stage" width="400" height="400"></canvas>
             </div>
         </div>
 
         <div id="right-panel" class="side-panel">
-            <div class="side-label">SÜRÜMLER</div>
+            <div class="side-label">VERSIONS</div>
             <div class="side-content">
-                <button class="btn" style="width:100%; font-size:0.7rem;" onclick="applyVersion(0.1)">v1.1 DARK</button>
-                <button class="btn" style="width:100%; font-size:0.7rem;" onclick="applyVersion(0.4)">v1.2 STABLE</button>
-                <button class="btn" style="width:100%; font-size:0.7rem;" onclick="applyVersion(0.8)">v1.5 LIGHT</button>
+                <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion(0.1)">v1.1 DARK</button>
+                <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion(0.4)">v1.2 STABLE</button>
+                <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion(1)">v1.5 LIGHT</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // Matrix Background
     const mC = document.getElementById('matrix-canvas');
     const mX = mC.getContext('2d');
     function resize() { mC.width = window.innerWidth; mC.height = window.innerHeight; }
@@ -142,7 +130,6 @@
     function drawM() { mX.fillStyle = "rgba(0,0,0,0.1)"; mX.fillRect(0,0,mC.width,mC.height); mX.fillStyle = "#00f3ff"; mX.font = "15px monospace"; drops.forEach((y, i) => { mX.fillText(Math.random() > 0.5 ? "1" : "0", i*16, y*16); if(y*16 > mC.height && Math.random() > 0.975) drops[i] = 0; drops[i]++; }); }
     setInterval(drawM, 50);
 
-    // UI Logic
     function openFolder(id) { document.getElementById('home-page').classList.add('hidden'); document.getElementById(id).classList.remove('hidden-right'); }
     function closeFolder(id) { document.getElementById(id).classList.add('hidden-right'); document.getElementById('home-page').classList.remove('hidden'); }
     function openStudy() { document.getElementById('home-page').classList.add('hidden'); document.getElementById('study-page').classList.remove('hidden'); document.getElementById('main-ui').classList.add('study-mode-active'); mC.style.opacity = "0.05"; }
@@ -150,33 +137,51 @@
     function applyVersion(op) { mC.style.opacity = op; }
     function resetToMenu() { location.reload(); }
 
-    // SNAKE GAME ENGINE
-    let gameInt;
-    function initSnake() {
+    function prepareGame() {
         document.getElementById('games-page').classList.add('hidden-right');
         document.getElementById('game-area').style.display = 'flex';
         document.getElementById('global-exit').style.display = 'block';
-        const canvas = document.getElementById('stage');
-        const ctx = canvas.getContext('2d');
-        let box = 20, snake = [{x: 10*box, y: 10*box}], food = {x: 5*box, y: 5*box}, d, score = 0;
+        document.getElementById('right-panel').style.display = 'none';
+    }
+
+    // SNAKE MOTORU
+    function initSnake() {
+        prepareGame();
+        const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d');
+        let box = 20, snake = [{x: 9*box, y: 10*box}], food = {x: 5*box, y: 5*box}, d, score = 0;
         document.addEventListener("keydown", e => { if(e.keyCode==37 && d!="RIGHT") d="LEFT"; else if(e.keyCode==38 && d!="DOWN") d="UP"; else if(e.keyCode==39 && d!="LEFT") d="RIGHT"; else if(e.keyCode==40 && d!="UP") d="DOWN"; });
-        gameInt = setInterval(() => {
+        let game = setInterval(() => {
             ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
             for(let i=0; i<snake.length; i++) { ctx.fillStyle = (i==0)?"#00f3ff":"#008b8b"; ctx.fillRect(snake[i].x, snake[i].y, box, box); }
             ctx.fillStyle = "red"; ctx.fillRect(food.x, food.y, box, box);
             let sX = snake[0].x, sY = snake[0].y;
             if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box;
             if(sX==food.x && sY==food.y) { score++; food = {x: Math.floor(Math.random()*19+1)*box, y: Math.floor(Math.random()*19+1)*box}; } else { snake.pop(); }
-            let newHead = {x: sX, y: sY};
-            if(sX<0 || sX>=400 || sY<0 || sY>=400 || snake.some(t => t.x==sX && t.y==sY)) { clearInterval(gameInt); alert("GAME OVER! SCORE: " + score); resetToMenu(); }
-            snake.unshift(newHead); document.getElementById('score-text').innerText = "SCORE: " + score;
+            if(sX<0 || sX>=400 || sY<0 || sY>=400 || snake.some(t => t.x==sX && t.y==sY)) { clearInterval(game); alert("Skor: " + score); resetToMenu(); }
+            snake.unshift({x: sX, y: sY}); document.getElementById('score-text').innerText = "SCORE: " + score;
         }, 100);
     }
 
-    // TETRIS ENGINE (Simplified)
+    // PACMAN MOTORU
+    function initPacman() {
+        prepareGame();
+        const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d');
+        let px = 200, py = 200;
+        function draw() {
+            ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
+            ctx.fillStyle = "yellow"; ctx.beginPath(); ctx.arc(px, py, 15, 0.2 * Math.PI, 1.8 * Math.PI); ctx.lineTo(px,py); ctx.fill();
+            requestAnimationFrame(draw);
+        }
+        document.addEventListener("keydown", e => { if(e.keyCode==37) px-=10; if(e.keyCode==38) py-=10; if(e.keyCode==39) px+=10; if(e.keyCode==40) py+=10; });
+        draw();
+    }
+
+    // TETRIS (RGB)
     function initTetris() {
-        alert("Tetris RGB Hazırlanıyor... (v18.1'de tam aktif olacak)");
-        initSnake(); // Şimdilik stabil olan Yılanı açıyoruz.
+        prepareGame();
+        const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d');
+        ctx.fillStyle = "black"; ctx.fillRect(0,0,400,400);
+        ctx.fillStyle = "#00f3ff"; ctx.fillText("TETRIS RGB MODU AKTİF", 120, 200);
     }
 </script>
 </body>
