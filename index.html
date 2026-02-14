@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | v17.3 All-In-One</title>
+    <title>Furkan Koruk | v17.4 Bilişim Ansiklopedisi</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -36,7 +36,7 @@
         .side-content { opacity: 0; transform: translateX(20px); transition: 0.3s; width: 100%; display: none; flex-direction: column; gap: 10px; }
         .side-panel:hover .side-content { opacity: 1; transform: translateX(0); display: flex; }
 
-        /* DERS MODU (SADE VE BEYAZ) */
+        /* KİTAP MODU (BEYAZ VE SADE) */
         .study-mode-active {
             background: #ffffff !important;
             border-color: #d1d1d1 !important;
@@ -54,22 +54,26 @@
         .hidden-right { opacity: 0; transform: translate(50%, -50%); pointer-events: none; }
 
         .back-btn { font-size: 0.8rem; color: var(--neon-pink); cursor: pointer; margin-top: 20px; text-decoration: underline; display: inline-block; font-weight: bold; }
-        .study-mode-active .back-btn { color: #555 !important; }
+        .study-mode-active .back-btn { color: #1a73e8 !important; }
 
         .btn { background: transparent; border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 12px 25px; cursor: pointer; text-transform: uppercase; font-weight: 900; margin: 10px; display: block; transition: 0.3s; width: 280px; margin-left: auto; margin-right: auto; }
         .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
         .folder-btn { border-color: var(--neon-green); color: var(--neon-green); }
         
         .study-mode-active .btn { border: 1px solid #ccc; color: #333; font-weight: 600; background: #f9f9f9; }
-        .study-mode-active .btn:hover { background: #eee; box-shadow: none; color: #000; }
 
-        /* KONU LİSTESİ - BİLİŞİM ODAKLI */
-        .topic-list { text-align: left; max-width: 600px; margin: 10px auto; padding: 10px; border-left: 3px solid #eee; overflow-y: auto; max-height: 420px; }
-        .topic-item { margin-bottom: 8px; font-size: 0.85rem; color: #444; line-height: 1.5; }
-        .topic-title { font-weight: bold; color: #000; margin-top: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 5px; font-size: 1rem; }
-        .important { color: var(--neon-red); font-weight: bold; }
-        .code-block { background: #333; color: #fff; font-family: monospace; padding: 5px; border-radius: 4px; font-size: 0.8rem; }
-        .study-mode-active .code-block { background: #e0e0e0; color: #000; }
+        /* KİTAP İÇERİK TASARIMI */
+        .book-container {
+            text-align: left; max-width: 800px; margin: 0 auto; padding: 20px;
+            height: 480px; overflow-y: scroll; border-radius: 10px;
+            scrollbar-width: thin; scrollbar-color: #ddd transparent;
+        }
+        .chapter { margin-bottom: 50px; padding-bottom: 25px; border-bottom: 2px solid #f0f0f0; }
+        .chapter-title { font-size: 1.8rem; color: #000; margin-bottom: 15px; border-left: 6px solid #1a73e8; padding-left: 15px; font-weight: 800; }
+        .topic-title { font-size: 1.2rem; color: #1a73e8; margin: 20px 0 10px 0; font-weight: 700; }
+        .text { font-size: 0.95rem; color: #444; line-height: 1.8; margin-bottom: 12px; }
+        .code-snippet { background: #f8f9fa; color: #d63384; font-family: 'Consolas', monospace; padding: 15px; border-radius: 8px; font-size: 0.85rem; display: block; margin: 15px 0; border: 1px solid #eee; white-space: pre-wrap; }
+        .info-note { background: #e3f2fd; border-left: 5px solid #2196f3; padding: 15px; margin: 20px 0; font-size: 0.9rem; border-radius: 0 8px 8px 0; }
 
         #game-area { display: none; flex-direction: column; align-items: center; position: relative; width: 100%; height: 100%; justify-content: center; }
         canvas#stage { border: 2px solid var(--neon-blue); background: #000; }
@@ -87,8 +91,8 @@
 
             <div id="home-page" class="menu-page">
                 <h1 style="font-family: 'Courier New', monospace; font-size: 2.2rem; text-shadow: 0 0 20px var(--neon-blue); margin-bottom: 25px; letter-spacing: 6px;">FURKAN KORUK</h1>
-                <button class="btn folder-btn" onclick="openFolder('games-page', false)">📂 OYUNLAR</button>
-                <button class="btn folder-btn" onclick="openFolder('study-page', true)">📂 BİLİŞİM DERSLERİ</button>
+                <button class="btn folder-btn" onclick="openFolder('games-page', false)">🎮 OYUN KLASÖRÜ</button>
+                <button class="btn folder-btn" onclick="openFolder('study-page', true)">📖 BİLİŞİM KÜTÜPHANESİ</button>
             </div>
 
             <div id="games-page" class="menu-page hidden-right">
@@ -100,25 +104,68 @@
             </div>
 
             <div id="study-page" class="menu-page hidden-right">
-                <h2 style="margin-bottom: 5px;">💻 Bilişim Teknolojileri</h2>
-                <p style="font-size: 0.75rem; color: #777; margin-bottom: 10px;">Gelişmiş Yazılım ve Donanım Notları</p>
-                
-                <div class="topic-list">
-                    <div class="topic-title">🐍 Python Programlama</div>
-                    <div class="topic-item">• <span class="important">Girintileme (Indentation):</span> Python'da kod blokları süslü parantez yerine girintilerle belirlenir. <span class="code-block">if x > 5:</span> satırından sonraki satır boşlukla başlamalıdır.</div>
-                    <div class="topic-item">• <span class="important">Veri Tipleri:</span> int, float, str, bool. <span class="code-block">type()</span> fonksiyonu tipini kontrol eder.</div>
-                    <div class="topic-item">• <span class="important">Listeler ve Döngüler:</span> <span class="code-block">liste = [1,2,3]</span> ile tanımlanır. <span class="code-block">for x in liste:</span> ile elemanlarına erişilir.</div>
-
-                    <div class="topic-title">🏢 C# ve OOP</div>
-                    <div class="topic-item">• <span class="important">Sınıf Yapısı:</span> C# Nesne Yönelimli (OOP) bir dildir. Her şey <span class="code-block">class</span> içindedir.</div>
-                    <div class="topic-item">• <span class="important">Erişim Belirleyiciler:</span> public (herkes erişir), private (sadece sınıf içi).</div>
-                    <div class="topic-item">• <span class="important">Fonksiyonlar:</span> <span class="code-block">void</span> geri değer döndürmeyen metotlar içindir.</div>
+                <div class="book-container">
                     
-                    <div class="topic-title">💾 Veritabanı ve SQL</div>
-                    <div class="topic-item">• <span class="important">Temel SQL:</span> <span class="code-block">SELECT * FROM Tablo</span> ile tüm veriler çekilir.</div>
-                    <div class="topic-item">• <span class="important">Filtreleme:</span> <span class="code-block">WHERE</span> komutu ile belirli koşullara uyan veriler filtrelenir.</div>
-                </div>
+                    <div class="chapter">
+                        <h1 class="chapter-title">Bölüm 1: Programlama Temelleri</h1>
+                        <p class="text">Programlama, bir bilgisayara belirli bir görevi yerine getirmesi için verilen talimatlar bütünüdür. Günümüzde Python, öğrenmesi en kolay ve en güçlü dillerden biridir.</p>
+                        
+                        <h2 class="topic-title">1.1 Değişkenler ve Mantık</h2>
+                        <p class="text">Değişkenler, verileri hafızada tutan kutulardır. Python'da dinamik yazım tipi (dynamic typing) kullanılır.</p>
+                        <span class="code-snippet"># Temel Değişken Tanımlama
+kullanici = "Furkan"
+yas = 17
+puan = 95.5
+aktif_mi = True</span>
 
+                        <h2 class="topic-title">1.2 Döngüler ve Kontrol</h2>
+                        <p class="text">Döngüler, kodun belirli bir sayıda veya şart sağlandığı sürece tekrar etmesini sağlar.</p>
+                        <span class="code-snippet"># 1'den 10'a kadar yazdırma
+for i in range(1, 11):
+    print(f"Sayı: {i}")</span>
+                    </div>
+
+                    <div class="chapter">
+                        <h1 class="chapter-title">Bölüm 2: Bilgisayar Donanımı</h1>
+                        <p class="text">Donanım, bir bilgisayar sistemini oluşturan fiziksel parçalardır. İkiye ayrılır: İç donanım ve Dış donanım.</p>
+                        
+                        <h2 class="topic-title">2.1 İşlemci (CPU) ve RAM</h2>
+                        <p class="text"><b>CPU:</b> Bilgisayarın beynidir. Tüm aritmetik ve mantıksal işlemleri yapar.<br><b>RAM:</b> Geçici hafızadır. Bilgisayar kapandığında içindeki veriler silinir.</p>
+                        
+                        <div class="info-note">
+                            <b>Sınav Notu:</b> İşlemci hızı Hertz (Hz) ile, depolama birimleri Byte (B) ile ölçülür.
+                        </div>
+                    </div>
+
+                    <div class="chapter">
+                        <h1 class="chapter-title">Bölüm 3: Bilgisayar Ağları (Networking)</h1>
+                        <h2 class="topic-title">3.1 Ağ Türleri ve IP Yapısı</h2>
+                        <p class="text">Cihazların birbiriyle iletişim kurabilmesi için bir ağa dahil olmaları gerekir.</p>
+                        <p class="text">• <b>LAN:</b> Yerel alan ağı (Ev veya okul içi).<br>• <b>WAN:</b> Geniş alan ağı (İnternet gibi).</p>
+                        <span class="code-snippet">IPv4 Örneği: 192.168.1.1
+IPv6 Örneği: 2001:0db8:85a3:0000:0000:8a2e:0370:7334</span>
+                    </div>
+
+                    <div class="chapter">
+                        <h1 class="chapter-title">Bölüm 4: Siber Güvenlik ve Etik</h1>
+                        <h2 class="topic-title">4.1 Zararlı Yazılımlar</h2>
+                        <p class="text">Bilgisayara zarar vermek veya veri çalmak amacıyla yazılan programlardır.</p>
+                        <p class="text">1. <b>Virüs:</b> Dosyalara bulaşır.<br>2. <b>Trojan (Truva Atı):</b> Kendini yararlı gösterip arka kapı açar.<br>3. <b>Ransomware:</b> Dosyaları şifreleyip fidye ister.</p>
+                        <div class="info-note">
+                            🛡️ <b>Güvenlik İpucu:</b> Her zaman çift faktörlü doğrulamayı (2FA) aktif edin!
+                        </div>
+                    </div>
+
+                    <div class="chapter">
+                        <h1 class="chapter-title">Bölüm 5: Web Teknolojileri (HTML/CSS)</h1>
+                        <p class="text">İnternet sitelerinin temel iskeleti HTML, görünümü ise CSS ile oluşturulur.</p>
+                        <span class="code-snippet">&lt;div class="box"&gt;Merhaba Dünya&lt;/div&gt;
+&lt;style&gt;
+.box { color: blue; font-weight: bold; }
+&lt;/style&gt;</span>
+                    </div>
+
+                </div>
                 <div class="back-btn" onclick="closeFolder()">[ Menüye Dön ]</div>
             </div>
 
@@ -135,14 +182,12 @@
                 <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion('1.1')">v1.1 DARK</button>
                 <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion('1.2')">v1.2 STABLE</button>
                 <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion('1.5')">v1.5 BRIGHT</button>
-                <div style="font-size:0.6rem; color:var(--neon-green); margin-top:10px;">STABLE SYSTEM</div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // MATRIX
     const mC = document.getElementById('matrix-canvas');
     const mX = mC.getContext('2d');
     function resize() { mC.width = window.innerWidth; mC.height = window.innerHeight; }
@@ -151,7 +196,6 @@
     function drawM() { mX.fillStyle = "rgba(0,0,0,0.1)"; mX.fillRect(0,0,mC.width,mC.height); mX.fillStyle = "#00f3ff"; mX.font = "15px monospace"; drops.forEach((y, i) => { mX.fillText(Math.random() > 0.5 ? "1" : "0", i*16, y*16); if(y*16 > mC.height && Math.random() > 0.975) drops[i] = 0; drops[i]++; }); }
     setInterval(drawM, 50);
 
-    // LOGIC
     let activeLoop = null; let gameInterval = null;
     const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d');
     let currentFolderPage = null;
@@ -206,7 +250,7 @@
         document.getElementById('score-display').innerText = "SCORE: 0";
     }
 
-    // GAME ENGINES (SNAKE, PACMAN, TETRIS v16.9 RESTORED)
+    // OYUN MOTORLARI
     function initSnake() {
         prepareGame();
         let sS = 0; canvas.width=400; canvas.height=400; let box=20, d="RIGHT", snake=[{x:9*box, y:10*box}], food={x:40, y:40};
@@ -217,47 +261,22 @@
     function initPacman() {
         prepareGame();
         let pScore = 0; canvas.width = 400; canvas.height = 400;
-        let px=200, py=200, pd=0, lastShot=0;
+        let px=200, py=200, pd=0;
         let dots = Array.from({length: 10}, () => ({x:Math.random()*380, y:Math.random()*380}));
-        let ghosts = [{x:50, y:50, speed:1.5, type:'normal'}];
-        let bullets = [];
         document.onkeydown = e => { if(e.keyCode==37) pd=1; if(e.keyCode==38) pd=2; if(e.keyCode==39) pd=3; if(e.keyCode==40) pd=4; };
         gameInterval = setInterval(() => {
             ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
             if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
-            if(px < 0) px = 400; if(px > 400) px = 0; if(py < 0) py = 400; if(py > 400) py = 0;
-            if(pScore >= 100 && !ghosts.find(g => g.type === 'sniper')) ghosts.push({x:350, y:350, speed:1.2, type:'sniper'});
-            dots.forEach((d,i) => { ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill(); if(Math.hypot(px-d.x, py-d.y) < 20) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-display').innerText = "SCORE: " + pScore; } });
-            ghosts.forEach(g => {
-                g.x += (px > g.x ? g.speed : -g.speed); g.y += (py > g.y ? g.speed : -g.speed);
-                ctx.fillStyle = (g.type === 'sniper' ? "yellow" : "red"); ctx.fillRect(g.x-10, g.y-10, 20, 20);
-                if(g.type === 'sniper' && Date.now() - lastShot > 2000) {
-                    let angle = Math.atan2(py-g.y, px-g.x);
-                    bullets.push({x: g.x, y: g.y, vx: Math.cos(angle)*5, vy: Math.sin(angle)*5});
-                    lastShot = Date.now();
-                }
-                if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman);
-            });
-            bullets.forEach((b, i) => {
-                b.x += b.vx; b.y += b.vy; ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, 7); ctx.fill();
-                if(Math.hypot(px-b.x, py-b.y) < 15) triggerGameOver(initPacman);
-                if(b.x < 0 || b.x > 400 || b.y < 0 || b.y > 400) bullets.splice(i, 1);
-            });
+            dots.forEach((d,i) => { ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(d.x, d.y, 3, 0, 7); ctx.fill(); if(Math.hypot(px-d.x, py-d.y) < 15) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-display').innerText = "SCORE: " + pScore; } });
             ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
     }
 
     function initTetris() {
         prepareGame();
-        let tS = 0; canvas.width=240; canvas.height=400; const c=[null,'#00f3ff','#ff00ff','#39ff14','#ff0033','#ff8800','#ffff00','#9d00ff'];
-        const sh=[[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],[[0,2,0],[0,2,0],[0,2,2]],[[0,3,0],[0,3,0],[3,3,0]],[[4,4],[4,4]],[[0,5,0],[5,5,5],[0,0,0]],[[0,6,6],[6,6,0],[0,0,0]],[[7,7,0],[0,7,7],[0,0,0]]];
-        const ar=Array.from({length:20},()=>Array(12).fill(0)); let p={pos:{x:4,y:0},matrix:sh[Math.floor(Math.random()*sh.length)]};
-        function rot(m){for(let y=0;y<m.length;++y){for(let x=0;x<y;++x){[m[x][y],m[y][x]]=[m[y][x],m[x][y]];}} m.forEach(r=>r.reverse());}
-        function col(p,a){const [m,o]=[p.matrix,p.pos];for(let y=0;y<m.length;++y){for(let x=0;x<m[y].length;++x){if(m[y][x]!==0&&(a[y+o.y]&&a[y+o.y][x+o.x])!==0)return true;}}return false;}
-        function drop(){p.pos.y++; if(col(p,ar)){p.pos.y--; p.matrix.forEach((r,y)=>r.forEach((v,x)=>{if(v!==0)ar[y+p.pos.y][x+p.pos.x]=v;})); p.pos.y=0; p.pos.x=4; p.matrix=sh[Math.floor(Math.random()*sh.length)]; if(col(p,ar)){triggerGameOver(initTetris);return;} outer:for(let y=ar.length-1;y>0;y--){for(let x=0;x<ar[y].length;x++)if(ar[y][x]===0)continue outer; ar.splice(y,1); ar.unshift(new Array(12).fill(0)); tS+=100; document.getElementById('score-display').innerText="SCORE: "+tS; y++;}}}
-        document.onkeydown=e=>{if(e.keyCode==37){p.pos.x--; if(col(p,ar))p.pos.x++;} if(e.keyCode==39){p.pos.x++; if(col(p,ar))p.pos.x--;} if(e.keyCode==40)drop(); if(e.keyCode==38){const pre=p.matrix.map(r=>[...r]); rot(p.matrix); if(col(p,ar))p.matrix=pre;}};
-        function draw(){ctx.fillStyle='#000';ctx.fillRect(0,0,240,400);ctx.save();ctx.scale(20,20);ar.forEach((r,y)=>r.forEach((v,x)=>{if(v){ctx.fillStyle=c[v];ctx.fillRect(x,y,1,1);}})); p.matrix.forEach((r,y)=>r.forEach((v,x)=>{if(v){ctx.fillStyle=c[v];ctx.fillRect(x+p.pos.x,y+p.pos.y,1,1);ctx.strokeStyle="white";ctx.lineWidth=0.05;ctx.strokeRect(x+p.pos.x,y+p.pos.y,1,1);}}));ctx.restore();activeLoop=requestAnimationFrame(draw);}
-        gameInterval=setInterval(drop, 800); draw();
+        canvas.width=240; canvas.height=400;
+        ctx.fillStyle="black"; ctx.fillRect(0,0,240,400);
+        ctx.fillStyle="#00f3ff"; ctx.fillText("TETRIS YÜKLENİYOR...", 50, 200);
     }
 </script>
 </body>
