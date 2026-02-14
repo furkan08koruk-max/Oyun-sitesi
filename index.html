@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | v16.8 Final</title>
+    <title>Furkan Koruk | v16.9</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -19,9 +19,29 @@
         .main-panel {
             flex: 3; background: var(--panel-bg); border: 2px solid var(--neon-blue);
             padding: 30px; border-radius: 20px; box-shadow: 0 0 30px rgba(0, 243, 255, 0.3);
-            position: relative; text-align: center;
+            position: relative; text-align: center; overflow: hidden;
         }
 
+        /* OYUNLAR MENÜSÜ ANİMASYONU */
+        #games-sub-menu {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        #games-sub-menu.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .back-btn {
+            font-size: 0.7rem; color: var(--neon-pink); cursor: pointer; margin-top: 15px; text-decoration: underline;
+        }
+
+        /* YAN PANEL */
         .side-panel {
             flex: 0.15; min-width: 70px; background: rgba(255, 0, 255, 0.05); 
             border: 2px solid rgba(255, 0, 255, 0.3); padding: 20px; border-radius: 20px;
@@ -29,20 +49,17 @@
             overflow: hidden; cursor: pointer;
         }
         .side-panel:hover { flex: 0.8; background: var(--panel-bg); border-color: var(--neon-pink); box-shadow: -10px 0 20px rgba(255, 0, 255, 0.2); }
-        
         .side-label { writing-mode: vertical-rl; color: var(--neon-pink); font-weight: bold; letter-spacing: 5px; transition: 0.3s; margin-top: 20px; }
         .side-panel:hover .side-label { display: none; }
-        
         .side-content { opacity: 0; transform: translateX(20px); transition: 0.3s; width: 100%; display: none; flex-direction: column; gap: 10px; }
         .side-panel:hover .side-content { opacity: 1; transform: translateX(0); display: flex; }
 
         .exit-btn { position: absolute; top: 15px; right: 15px; padding: 8px 15px; font-size: 10px; border: 1px solid var(--neon-pink); color: var(--neon-pink); background: transparent; cursor: pointer; z-index: 1000; display: none; font-weight: bold; }
         h1 { font-family: 'Courier New', monospace; font-size: 2.5rem; text-shadow: 0 0 20px var(--neon-blue); margin-bottom: 25px; letter-spacing: 8px; }
         
-        .btn { background: transparent; border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 10px 22px; cursor: pointer; text-transform: uppercase; font-weight: 900; margin: 5px; display: inline-block; transition: 0.3s; }
+        .btn { background: transparent; border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 10px 22px; cursor: pointer; text-transform: uppercase; font-weight: 900; margin: 5px; display: inline-block; transition: 0.3s; width: 250px; }
         .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
-        .ver-btn { border-color: var(--neon-pink); color: var(--neon-pink); width: 100%; }
-
+        
         #info-box { margin-top: 30px; padding: 20px; border: 1px dashed rgba(0, 243, 255, 0.2); background: rgba(0, 243, 255, 0.03); border-radius: 10px; text-align: left; }
         .info-header { color: var(--neon-pink); font-size: 0.7rem; letter-spacing: 3px; margin-bottom: 15px; font-weight: bold; border-bottom: 1px solid rgba(255, 0, 255, 0.2); display: inline-block; }
         .info-item { margin-bottom: 12px; font-size: 0.9rem; color: #e0e0e0; font-family: 'Consolas', monospace; }
@@ -61,17 +78,23 @@
         <div id="main-ui" class="main-panel">
             <button id="global-exit" class="exit-btn" onclick="resetToMenu()">✖ ANA MENÜ</button>
 
-            <div id="menu-content">
+            <div id="main-menu-content">
                 <h1>FURKAN KORUK</h1>
+                <button class="btn" style="border-color: var(--neon-green); color: var(--neon-green);" onclick="toggleGameMenu(true)">📂 OYUNLAR</button>
+
+                <div id="info-box">
+                    <div class="info-header">> ARCADE_FINAL_LOG_16.9.EXE</div>
+                    <div class="info-item">◈ <b>SİSTEM:</b> Tüm oyunlar "Oyunlar" klasörüne taşındı.</div>
+                    <div class="info-item">◈ <b>SNIPER BOT:</b> Pacman 100 puanda aktifleşir.</div>
+                </div>
+            </div>
+
+            <div id="games-sub-menu">
+                <h2 style="color: var(--neon-blue); margin-bottom: 20px; letter-spacing: 3px;">OYUN SEÇİN</h2>
                 <button class="btn" onclick="initSnake()">🐍 CYBER SNAKE</button>
                 <button class="btn" onclick="initPacman()">🟡 PACMAN</button>
                 <button class="btn" onclick="initTetris()">🧱 TETRIS RGB</button>
-
-                <div id="info-box">
-                    <div class="info-header">> ARCADE_FINAL_LOG_16.8.EXE</div>
-                    <div class="info-item">◈ <b>SNIPER BOT:</b> Pacman'de 100 puanda aktifleşir.</div>
-                    <div class="info-item">◈ <b>CROSS-SCORE:</b> Devre dışı. Skorlar her oyunda sıfırlanır.</div>
-                </div>
+                <div class="back-btn" onclick="toggleGameMenu(false)">[ Geri Dön ]</div>
             </div>
 
             <div id="game-area">
@@ -84,9 +107,9 @@
         <div id="right-panel" class="side-panel">
             <div class="side-label">VERSIONS</div>
             <div class="side-content">
-                <button class="btn ver-btn" onclick="applyVersion('1.1')">v1.1 DARK</button>
-                <button class="btn ver-btn" onclick="applyVersion('1.2')">v1.2 STABLE</button>
-                <button class="btn ver-btn" onclick="applyVersion('1.5')">v1.5 BRIGHT</button>
+                <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion('1.1')">v1.1 DARK</button>
+                <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion('1.2')">v1.2 STABLE</button>
+                <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion('1.5')">v1.5 BRIGHT</button>
                 <div id="ver-status" style="margin-top:10px; font-size:0.6rem; color:var(--neon-green); font-family:monospace;">READY</div>
             </div>
         </div>
@@ -104,9 +127,29 @@
     let activeLoop = null; let gameInterval = null;
     const canvas = document.getElementById('stage'); const ctx = canvas.getContext('2d');
 
+    // OYUN MENÜSÜ AÇ/KAPAT ANİMASYONU
+    function toggleGameMenu(show) {
+        const mainMenu = document.getElementById('main-menu-content');
+        const gameMenu = document.getElementById('games-sub-menu');
+        
+        if(show) {
+            mainMenu.style.display = 'none';
+            gameMenu.style.display = 'flex';
+            setTimeout(() => gameMenu.classList.add('active'), 10);
+        } else {
+            gameMenu.classList.remove('active');
+            setTimeout(() => {
+                gameMenu.style.display = 'none';
+                mainMenu.style.display = 'block';
+            }, 300);
+        }
+    }
+
     function resetToMenu() {
         if(activeLoop) cancelAnimationFrame(activeLoop); if(gameInterval) clearInterval(gameInterval);
-        document.getElementById('menu-content').style.display = 'block';
+        document.getElementById('main-menu-content').style.display = 'block';
+        document.getElementById('games-sub-menu').style.display = 'none';
+        document.getElementById('games-sub-menu').classList.remove('active');
         document.getElementById('game-area').style.display = 'none';
         document.getElementById('right-panel').style.display = 'flex';
         document.getElementById('global-exit').style.display = 'none';
@@ -128,7 +171,7 @@
 
     // PACMAN + SNIPER ROBOT
     function initPacman() {
-        resetToMenu(); document.getElementById('menu-content').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
+        resetToMenu(); document.getElementById('main-menu-content').style.display='none'; document.getElementById('games-sub-menu').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
         let pScore = 0; document.getElementById('score-display').innerText = "SCORE: 0";
         canvas.width = 400; canvas.height = 400;
         let px=200, py=200, pd=0, lastShot=0;
@@ -141,14 +184,11 @@
             ctx.fillStyle="black"; ctx.fillRect(0,0,400,400);
             if(pd==1) px-=4; if(pd==2) py-=4; if(pd==3) px+=4; if(pd==4) py+=4;
             if(px < 0) px = 400; if(px > 400) px = 0; if(py < 0) py = 400; if(py > 400) py = 0;
-
             if(pScore >= 100 && !ghosts.find(g => g.type === 'sniper')) ghosts.push({x:350, y:350, speed:1.2, type:'sniper'});
-
             dots.forEach((d,i) => { 
                 ctx.fillStyle="#ff00ff"; ctx.beginPath(); ctx.arc(d.x, d.y, 5, 0, 7); ctx.fill(); 
                 if(Math.hypot(px-d.x, py-d.y) < 20) { dots[i] = {x:Math.random()*380, y:Math.random()*380}; pScore += 10; document.getElementById('score-display').innerText = "SCORE: " + pScore; } 
             });
-
             ghosts.forEach(g => {
                 g.x += (px > g.x ? g.speed : -g.speed); g.y += (py > g.y ? g.speed : -g.speed);
                 ctx.fillStyle = (g.type === 'sniper' ? "yellow" : "red"); ctx.fillRect(g.x-10, g.y-10, 20, 20);
@@ -159,38 +199,16 @@
                 }
                 if(Math.hypot(px-g.x, py-g.y) < 20) triggerGameOver(initPacman);
             });
-
             bullets.forEach((b, i) => {
                 b.x += b.vx; b.y += b.vy; ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(b.x, b.y, 3, 0, 7); ctx.fill();
                 if(Math.hypot(px-b.x, py-b.y) < 15) triggerGameOver(initPacman);
                 if(b.x < 0 || b.x > 400 || b.y < 0 || b.y > 400) bullets.splice(i, 1);
             });
-
             ctx.fillStyle="yellow"; ctx.beginPath(); ctx.arc(px,py,15,0.2*Math.PI, 1.8*Math.PI); ctx.lineTo(px,py); ctx.fill();
         }, 30);
     }
 
     function initSnake() {
-        resetToMenu(); document.getElementById('menu-content').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
+        resetToMenu(); document.getElementById('main-menu-content').style.display='none'; document.getElementById('games-sub-menu').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
         let sS = 0; document.getElementById('score-display').innerText = "SCORE: 0";
-        canvas.width=400; canvas.height=400; let box=20, d="RIGHT", snake=[{x:9*box, y:10*box}], food={x:40, y:40};
-        document.onkeydown=e=>{ if(e.keyCode==37 && d!="RIGHT") d="LEFT"; if(e.keyCode==38 && d!="DOWN") d="UP"; if(e.keyCode==39 && d!="LEFT") d="RIGHT"; if(e.keyCode==40 && d!="UP") d="DOWN"; };
-        gameInterval=setInterval(()=>{ ctx.fillStyle="#000b1a"; ctx.fillRect(0,0,400,400); let sX=snake[0].x, sY=snake[0].y; if(d=="LEFT") sX-=box; if(d=="UP") sY-=box; if(d=="RIGHT") sX+=box; if(d=="DOWN") sY+=box; if(sX<0||sX>=400||sY<0||sY>=400||snake.some(t=>t.x==sX&&t.y==sY)){triggerGameOver(initSnake);return;} if(sX==food.x&&sY==food.y){food={x:Math.floor(Math.random()*19)*box, y:Math.floor(Math.random()*19)*box}; sS++; document.getElementById('score-display').innerText="SCORE: "+sS;}else{snake.pop();} snake.unshift({x:sX, y:sY}); snake.forEach((p,i)=>{ctx.fillStyle=i==0?"#00f3ff":"#005a66"; ctx.fillRect(p.x+2,p.y+2,box-4,box-4);}); ctx.fillStyle="#ff00ff"; ctx.fillRect(food.x+5,food.y+5,10,10); },100);
-    }
-
-    function initTetris() {
-        resetToMenu(); document.getElementById('menu-content').style.display='none'; document.getElementById('game-area').style.display='flex'; document.getElementById('right-panel').style.display='none'; document.getElementById('global-exit').style.display='block';
-        let tS = 0; document.getElementById('score-display').innerText = "SCORE: 0";
-        canvas.width=240; canvas.height=400; const c=[null,'#00f3ff','#ff00ff','#39ff14','#ff0033','#ff8800','#ffff00','#9d00ff'];
-        const sh=[[[0,1,0,0],[0,1,0,0],[0,1,0,0],[0,1,0,0]],[[0,2,0],[0,2,0],[0,2,2]],[[0,3,0],[0,3,0],[3,3,0]],[[4,4],[4,4]],[[0,5,0],[5,5,5],[0,0,0]],[[0,6,6],[6,6,0],[0,0,0]],[[7,7,0],[0,7,7],[0,0,0]]];
-        const ar=Array.from({length:20},()=>Array(12).fill(0)); let p={pos:{x:4,y:0},matrix:sh[Math.floor(Math.random()*sh.length)]};
-        function rot(m){for(let y=0;y<m.length;++y){for(let x=0;x<y;++x){[m[x][y],m[y][x]]=[m[y][x],m[x][y]];}} m.forEach(r=>r.reverse());}
-        function col(p,a){const [m,o]=[p.matrix,p.pos];for(let y=0;y<m.length;++y){for(let x=0;x<m[y].length;++x){if(m[y][x]!==0&&(a[y+o.y]&&a[y+o.y][x+o.x])!==0)return true;}}return false;}
-        function drop(){p.pos.y++; if(col(p,ar)){p.pos.y--; p.matrix.forEach((r,y)=>r.forEach((v,x)=>{if(v!==0)ar[y+p.pos.y][x+p.pos.x]=v;})); p.pos.y=0; p.pos.x=4; p.matrix=sh[Math.floor(Math.random()*sh.length)]; if(col(p,ar)){triggerGameOver(initTetris);return;} outer:for(let y=ar.length-1;y>0;y--){for(let x=0;x<ar[y].length;x++)if(ar[y][x]===0)continue outer; ar.splice(y,1); ar.unshift(new Array(12).fill(0)); tS+=100; document.getElementById('score-display').innerText="SCORE: "+tS; y++;}}}
-        document.onkeydown=e=>{if(e.keyCode==37){p.pos.x--; if(col(p,ar))p.pos.x++;} if(e.keyCode==39){p.pos.x++; if(col(p,ar))p.pos.x--;} if(e.keyCode==40)drop(); if(e.keyCode==38){const pre=p.matrix.map(r=>[...r]); rot(p.matrix); if(col(p,ar))p.matrix=pre;}};
-        function draw(){ctx.fillStyle='#000';ctx.fillRect(0,0,240,400);ctx.save();ctx.scale(20,20);ar.forEach((r,y)=>r.forEach((v,x)=>{if(v){ctx.fillStyle=c[v];ctx.fillRect(x,y,1,1);}})); p.matrix.forEach((r,y)=>r.forEach((v,x)=>{if(v){ctx.fillStyle=c[v];ctx.fillRect(x+p.pos.x,y+p.pos.y,1,1);ctx.strokeStyle="white";ctx.lineWidth=0.05;ctx.strokeRect(x+p.pos.x,y+p.pos.y,1,1);}}));ctx.restore();activeLoop=requestAnimationFrame(draw);}
-        gameInterval=setInterval(drop, 800); draw();
-    }
-</script>
-</body>
-</html>
+        canvas.width=400; canvas.height=40
