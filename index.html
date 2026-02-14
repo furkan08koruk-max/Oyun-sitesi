@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Furkan Koruk | v17.5 Master Edition</title>
+    <title>Furkan Koruk | v17.6 Dev Edition</title>
     <style>
         :root {
             --neon-blue: #00f3ff; --neon-pink: #ff00ff; --neon-green: #39ff14;
@@ -23,42 +23,41 @@
             position: relative; text-align: center; overflow: hidden; transition: 0.5s;
         }
 
-        /* YAN PANEL (VERSIONS) */
+        /* YAN PANEL */
         .side-panel {
             flex: 0.15; min-width: 70px; background: rgba(255, 0, 255, 0.05); 
             border: 2px solid rgba(255, 0, 255, 0.3); padding: 20px; border-radius: 20px;
-            display: flex; flex-direction: column; align-items: center; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; flex-direction: column; align-items: center; transition: 0.5s;
             overflow: hidden; cursor: pointer;
         }
-        .side-panel:hover { flex: 0.6; background: var(--panel-bg); border-color: var(--neon-pink); box-shadow: -10px 0 20px rgba(255, 0, 255, 0.2); }
-        .side-label { writing-mode: vertical-rl; color: var(--neon-pink); font-weight: bold; letter-spacing: 5px; transition: 0.3s; margin-top: 20px; }
+        .side-panel:hover { flex: 0.6; background: var(--panel-bg); border-color: var(--neon-pink); }
+        .side-label { writing-mode: vertical-rl; color: var(--neon-pink); font-weight: bold; letter-spacing: 5px; margin-top: 20px; }
         .side-panel:hover .side-label { display: none; }
-        .side-content { opacity: 0; transform: translateX(20px); transition: 0.3s; width: 100%; display: none; flex-direction: column; gap: 10px; }
-        .side-panel:hover .side-content { opacity: 1; transform: translateX(0); display: flex; }
+        .side-content { opacity: 0; display: none; flex-direction: column; gap: 10px; width: 100%; }
+        .side-panel:hover .side-content { opacity: 1; display: flex; }
 
-        /* ODAKLANMA MODU */
-        .study-mode-active { background: #ffffff !important; color: #222 !important; border-color: #eee !important; box-shadow: 0 10px 40px rgba(0,0,0,0.1) !important; }
+        /* DERS MODU STİLİ */
+        .study-mode-active { background: #ffffff !important; color: #222 !important; border-color: #ddd !important; }
         
-        .menu-page { position: absolute; width: 90%; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: 0.5s; opacity: 1; }
+        .menu-page { position: absolute; width: 90%; top: 50%; left: 50%; transform: translate(-50%, -50%); transition: 0.5s; }
         .hidden { opacity: 0; pointer-events: none; transform: translate(-150%, -50%); }
-        .hidden-right { opacity: 0; pointer-events: none; transform: translate(50%, -50%); }
+        .hidden-right { opacity: 0; pointer-events: none; transform: translate(150%, -50%); }
 
         .btn { background: transparent; border: 2px solid var(--neon-blue); color: var(--neon-blue); padding: 12px; cursor: pointer; font-weight: 900; margin: 10px auto; display: block; width: 280px; transition: 0.3s; text-transform: uppercase; }
         .btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
         .study-mode-active .btn { border: 1px solid #333; color: #333; background: #fff; }
 
-        /* DERS KİTABI TASARIMI */
+        /* BİLİŞİM KİTABI */
         .book-container { 
             text-align: left; height: 420px; overflow-y: auto; padding: 20px; 
             background: #fdfdfd; border-radius: 10px; border: 1px solid #ddd; color: #333; line-height: 1.6;
         }
         .book-section { margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .book-title { font-size: 1.3rem; font-weight: 800; color: #d32f2f; margin-bottom: 10px; }
-        .important-box { background: #e3f2fd; border-left: 5px solid #2196f3; padding: 10px; margin: 10px 0; font-size: 0.9rem; }
-        .highlight { background: #fff176; padding: 2px 5px; font-weight: bold; border-radius: 3px; }
+        .book-title { font-size: 1.4rem; font-weight: 800; color: #2e7d32; margin-bottom: 10px; border-left: 5px solid #2e7d32; padding-left: 10px; }
+        .code-snippet { background: #272822; color: #f8f8f2; padding: 10px; border-radius: 5px; font-family: monospace; margin: 10px 0; font-size: 0.85rem; }
+        .important-box { background: #fffde7; border-left: 5px solid #fbc02d; padding: 10px; margin: 10px 0; font-size: 0.9rem; font-weight: 500; }
+        .highlight { color: #d32f2f; font-weight: bold; }
 
-        #game-area { display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: center; }
-        canvas#stage { border: 2px solid var(--neon-blue); background: #000; }
         .back-btn { font-weight: bold; cursor: pointer; margin-top: 15px; display: inline-block; color: var(--neon-pink); }
         .study-mode-active .back-btn { color: #555; }
     </style>
@@ -75,39 +74,46 @@
             <div id="home-page" class="menu-page">
                 <h1 style="font-family: 'Courier New', monospace; font-size: 2.2rem; text-shadow: 0 0 20px var(--neon-blue); margin-bottom: 30px; letter-spacing: 6px;">FURKAN KORUK</h1>
                 <button class="btn" style="border-color:var(--neon-green); color:var(--neon-green);" onclick="openFolder('games-page')">🎮 OYUNLAR</button>
-                <button class="btn" onclick="openStudy()">📖 10. SINIF DERS KİTABI</button>
+                <button class="btn" onclick="openStudy()">💻 BİLİŞİM NOTLARI (PY & C#)</button>
             </div>
 
             <div id="games-page" class="menu-page hidden-right">
                 <h2 style="color: var(--neon-blue); margin-bottom: 20px;">OYUNLAR</h2>
-                <button class="btn" onclick="initSnake()">🐍 CYBER SNAKE</button>
-                <button class="btn" onclick="initPacman()">🟡 PACMAN</button>
-                <button class="btn" onclick="initTetris()">🧱 TETRIS RGB</button>
+                <button class="btn" onclick="alert('Yılan Başlatılıyor...')">🐍 CYBER SNAKE</button>
+                <button class="btn" onclick="alert('Pacman Başlatılıyor...')">🟡 PACMAN</button>
+                <button class="btn" onclick="alert('Tetris Başlatılıyor...')">🧱 TETRIS RGB</button>
                 <div class="back-btn" onclick="closeFolder('games-page')">[ Geri Dön ]</div>
             </div>
 
             <div id="study-page" class="menu-page hidden">
-                <h2 style="margin-bottom: 10px;">📖 Çalışma Kütüphanesi</h2>
+                <h2 style="margin-bottom: 10px;">🚀 Yazılım Geliştirme Notları</h2>
                 <div class="book-container">
+                    
                     <div class="book-section">
-                        <div class="book-title">💻 Bilişim Teknolojileri</div>
-                        <p>Python'da <span class="highlight">for</span> ve <span class="highlight">while</span> döngüleri temel taşlardır. Algoritma kurarken elips "başla", dikdörtgen "işlem" demektir.</p>
-                        <div class="important-box">📌 <b>İPUCU:</b> Python'da girintilere (indentation) dikkat etmezsen kodun hata verir!</div>
+                        <div class="book-title">🐍 Python: Hızlı ve Esnek</div>
+                        <p>Python'da en önemli konu <span class="highlight">Indentation (Girinti)</span> kuralıdır. Süslü parantez yoktur, boşluklar kodun bloğunu belirler.</p>
+                        <div class="code-snippet">for i in range(5):<br>&nbsp;&nbsp;&nbsp;&nbsp;print("Furkan") # 4 boşluk şart!</div>
+                        <div class="important-box">💡 <b>SINAV NOTU:</b> Listeler [ ] ile, Tuplelar ( ) ile tanımlanır. Listeler değiştirilebilir, Tuplelar değiştirilemez!</div>
                     </div>
+
                     <div class="book-section">
-                        <div class="book-title">📐 Matematik</div>
-                        <p>Permütasyon sıralama (n!), Kombinasyon seçmedir. <span class="highlight">f(g(x))</span> bileşke fonksiyonu sınavın favorisidir.</p>
+                        <div class="book-title">🏢 C#: Tip Güvenli ve Güçlü</div>
+                        <p>C# dersinde <span class="highlight">Değişken Tipleri</span> hayati önem taşır. Her satırın sonuna <b>;</b> koymayı unutmamalısın.</p>
+                        <div class="code-snippet">int sayi = 10;<br>string isim = "Furkan";<br>bool ogrenciMi = true;</div>
+                        <div class="important-box">⚠️ <b>KRİTİK:</b> C# nesne yönelimli (OOP) bir dildir. "Class" yapısını ve "Main" metodunun başlangıç noktası olduğunu bilmelisin.</div>
                     </div>
+
                     <div class="book-section">
-                        <div class="book-title">📚 Edebiyat</div>
-                        <p>Kutadgu Bilig (İlk Siyasetname) ve Divan-ı Lügati't-Türk (İlk Sözlük) geçiş döneminin en önemli eserleridir.</p>
+                        <div class="book-title">⚙️ Algoritma Mantığı</div>
+                        <p>Hangi dili kullanırsan kullan, <b>If-Else</b> yapısı karar vermeni sağlar.</p>
+                        <div class="important-box">📌 <b>ÖNEMLİ:</b> Algoritma akış şemalarında baklava dilimi (eşkenar dörtgen) her zaman bir karar/soru (True/False) temsil eder.</div>
                     </div>
+
                 </div>
                 <div class="back-btn" onclick="closeStudy()">[ Menüye Dön ]</div>
             </div>
 
-            <div id="game-area">
-                <div id="score-display" style="color:var(--neon-blue); margin-bottom:10px; font-weight:bold; font-size: 1.2rem;">SCORE: 0</div>
+            <div id="game-area" style="display:none">
                 <canvas id="stage"></canvas>
             </div>
         </div>
@@ -118,7 +124,7 @@
                 <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion(0)">v1.1 DARK</button>
                 <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion(0.4)">v1.2 STABLE</button>
                 <button class="btn" style="width:100%; font-size:0.7rem; border-color:var(--neon-pink); color:var(--neon-pink);" onclick="applyVersion(1)">v1.5 BRIGHT</button>
-                <div style="font-size:0.6rem; color:var(--neon-green); margin-top:10px;">v17.5 MASTER</div>
+                <div style="font-size:0.6rem; color:var(--neon-green); margin-top:10px;">v17.6 DEV</div>
             </div>
         </div>
     </div>
@@ -148,18 +154,8 @@
         document.getElementById('main-ui').classList.remove('study-mode-active');
         mC.style.opacity = "0.4";
     }
-
     function applyVersion(op) { mC.style.opacity = op; }
     function resetToMenu() { location.reload(); }
-
-    // Oyun motorları (Basitleştirilmiş Snake Örneği)
-    function initSnake() {
-        document.getElementById('games-page').classList.add('hidden-right');
-        document.getElementById('game-area').style.display = 'flex';
-        document.getElementById('global-exit').style.display = 'block';
-        document.getElementById('right-panel').style.display = 'none';
-        // ... Yılan motoru kodları ...
-    }
 </script>
 </body>
 </html>
